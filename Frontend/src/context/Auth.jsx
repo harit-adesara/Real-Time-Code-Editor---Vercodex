@@ -1,0 +1,43 @@
+// context/AuthContext.jsx
+import { createContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { socket } from "../socket.js";
+
+export const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const checkAuth = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/vercodex/me", {
+        withCredentials: true,
+      });
+      setUser(res.data.data);
+    } catch (err) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      socket.connect();
+    } else {
+      socket.disconnect();
+    }
+  }, [user]);
+
+  return (
+    <AuthContext.Provider value={{ user, setUser, loading, checkAuth }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
