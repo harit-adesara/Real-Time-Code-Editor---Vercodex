@@ -1,10 +1,10 @@
 import { Worker } from "bullmq";
 import { redis } from "../db/redis.js";
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 
-dotenv.config({
-  path: "./.env",
-});
+// dotenv.config({
+//   path: "./.env",
+// });
 
 import {
   commitVersion,
