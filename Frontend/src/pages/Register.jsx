@@ -122,6 +122,15 @@ const Register = () => {
               className="w-full bg-[rgb(30,41,59)] text-white px-4 py-3 rounded-xl outline-none focus:border-blue-500 border border-transparent"
             />
 
+            <div className="text-center mt-3">
+              <Link
+                to="/resend-verification"
+                className="text-blue-400 hover:text-blue-500 text-sm"
+              >
+                If already registered or did not receive email then click me
+              </Link>
+            </div>
+
             <button
               type="submit"
               disabled={loading}

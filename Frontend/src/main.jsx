@@ -32,6 +32,7 @@ import ProtectedRoute from "./ProtectedRoutes/ProtectedRoutes.jsx";
 import PublicRoute from "./ProtectedRoutes/PublicRoutes.jsx";
 import ResetPassword from "./pages/ResetForgetPassword.jsx";
 import VerifyEmail from "./pages/VerifyEmail.jsx";
+import ResendVerification from "./pages/ResendEmail.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -54,6 +55,7 @@ const router = createBrowserRouter(
       </Route>
       <Route element={<PublicRoute />}>
         <Route path="/verify/:verificationToken" element={<VerifyEmail />} />
+        <Route path="/resend-verification" element={<ResendVerification />} />
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
