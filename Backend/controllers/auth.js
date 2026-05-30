@@ -263,7 +263,7 @@ const forgotPasswordRequest = asyncHandler(async (req, res) => {
     subject: "Password reset request",
     mailgenContent: forgotPasswordMailgenContent(
       user.fullname,
-      `http://localhost:5173/reset-password/${unHashedToken}`,
+      `https://real-time-code-editor-vercodex.vercel.app//reset-password/${unHashedToken}`,
     ),
   });
 
@@ -354,7 +354,7 @@ const resendRegisterMail = asyncHandler(async (req, res) => {
     subject: "Verify your account",
     mailgenContent: registerEmail(
       user.fullname,
-      `http://localhost:5173/verify/${unHashedToken}`,
+      `https://real-time-code-editor-vercodex.vercel.app/verify/${unHashedToken}`,
     ),
   });
 
