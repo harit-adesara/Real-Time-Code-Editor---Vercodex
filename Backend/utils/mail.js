@@ -43,6 +43,7 @@ const sendEmail = async (option) => {
     console.error("❌ SMTP Error Code:", error.code);
     console.error("❌ SMTP Error Message:", error.message);
     console.error("❌ SMTP Response:", error.response);
+    throw error;
   }
 };
 
