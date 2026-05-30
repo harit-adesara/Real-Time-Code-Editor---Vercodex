@@ -9,9 +9,6 @@ const sendEmail = async (option) => {
       link: "https://vercodex.com",
     },
   });
-  console.log("📧 Sending email to:", option.email);
-  console.log("📧 Using Gmail user:", process.env.GMAIL_USER);
-  console.log("📧 Port:", parseInt(process.env.GMAIL_PORT));
   const emailTextual = mailGenerator.generatePlaintext(option.mailgenContent);
   const emailHtml = mailGenerator.generate(option.mailgenContent);
   const transporter = nodemailer.createTransport({
@@ -35,6 +32,11 @@ const sendEmail = async (option) => {
   };
 
   try {
+    console.log("📧 EMAIL DEBUG:");
+    console.log("  HOST:", process.env.GMAIL_HOST);
+    console.log("  PORT:", process.env.GMAIL_PORT);
+    console.log("  USER:", process.env.GMAIL_USER);
+    console.log("  PASS exists:", !!process.env.GMAIL_PASS);
     await transporter.sendMail(mail);
     console.log("✅ Email sent to", option.email);
   } catch (error) {
