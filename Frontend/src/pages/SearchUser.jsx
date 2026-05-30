@@ -23,9 +23,12 @@ const SearchUser = () => {
 
   const fetchRooms = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/vercodex/rooms", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/rooms",
+        {
+          withCredentials: true,
+        },
+      );
 
       setRooms(res.data.data.rooms || []);
     } catch (err) {}
@@ -37,7 +40,7 @@ const SearchUser = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/vercodex/users/search",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/users/search",
         { username },
         { withCredentials: true },
       );
@@ -53,7 +56,7 @@ const SearchUser = () => {
   const sendInvite = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/vercodex/room/invite",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/invite",
         {
           roomId: selectedRoom,
           username: selectedUser.username,

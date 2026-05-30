@@ -49,7 +49,7 @@ const Sidebar = () => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/vercodex/logout",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/logout",
         {},
         { withCredentials: true },
       );
@@ -63,7 +63,7 @@ const Sidebar = () => {
   const getUnreadCount = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/vercodex/notifications/unread-count",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/notifications/unread-count",
         {
           withCredentials: true,
         },

@@ -10,7 +10,7 @@ const VerifyEmail = () => {
     const verify = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3000/vercodex/verify/${verificationToken}`,
+          `https://real-time-code-editor-vercodex.onrender.com/vercodex/verify/${verificationToken}`,
         );
 
         if (res.data.success) {

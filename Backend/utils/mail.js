@@ -13,7 +13,7 @@ const sendEmail = async (option) => {
   const emailHtml = mailGenerator.generate(option.mailgenContent);
   const transporter = nodemailer.createTransport({
     host: process.env.GMAIL_HOST,
-    port: process.env.GMAIL_PORT,
+    port: parseInt(process.env.GMAIL_PORT),
     secure: false,
     auth: {
       user: process.env.GMAIL_USER,
@@ -30,11 +30,10 @@ const sendEmail = async (option) => {
 
   try {
     await transporter.sendMail(mail);
+    console.log("✅ Email sent successfully to", option.email);
   } catch (error) {
-    console.error(
-      "Email service failed siliently, Make sure that you have provided your mailtrap credentials in .env file",
-    );
-    console.error("Email ", error);
+    console.error("❌ Email sending failed:", error.message); // ✅ clear error
+    throw error; // ✅ don't silently fail — let caller know
   }
 };
 

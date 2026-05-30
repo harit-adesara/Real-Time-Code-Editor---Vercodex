@@ -29,7 +29,7 @@ const Register = () => {
 
     try {
       await axios.post(
-        "http://localhost:3000/vercodex/register",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/register",
         {
           email,
           password,

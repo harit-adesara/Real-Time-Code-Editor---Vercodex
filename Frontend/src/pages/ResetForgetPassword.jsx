@@ -38,7 +38,7 @@ const ResetPassword = () => {
       setLoading(true);
 
       const res = await axios.post(
-        `http://localhost:3000/vercodex/reset-password/${resetToken}`,
+        `https://real-time-code-editor-vercodex.onrender.com/vercodex/reset-password/${resetToken}`,
         {
           newPassword: form.password,
         },

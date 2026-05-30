@@ -16,7 +16,7 @@ const CreateRoom = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/vercodex/room/create",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/create",
         { name, password },
         { withCredentials: true },
       );

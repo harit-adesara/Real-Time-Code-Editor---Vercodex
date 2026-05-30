@@ -27,9 +27,12 @@ const ForgetPassword = () => {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:3000/vercodex/forgot-password", {
-        email,
-      });
+      await axios.post(
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/forgot-password",
+        {
+          email,
+        },
+      );
 
       setMessage("📩 Reset link sent to your email");
       setEmail("");

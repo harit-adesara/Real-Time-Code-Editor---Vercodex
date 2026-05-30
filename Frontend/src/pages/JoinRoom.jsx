@@ -16,7 +16,7 @@ const JoinRoom = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/vercodex/room/join-password",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/join-password",
         { roomCode, password },
         { withCredentials: true },
       );

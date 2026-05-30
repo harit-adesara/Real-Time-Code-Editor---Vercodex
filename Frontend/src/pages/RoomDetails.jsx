@@ -25,7 +25,7 @@ const RoomDetails = () => {
   const getRoomDetails = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/vercodex/room/detail?roomId=${roomId}`,
+        `https://real-time-code-editor-vercodex.onrender.com/vercodex/room/detail?roomId=${roomId}`,
         { withCredentials: true },
       );
 
@@ -41,9 +41,12 @@ const RoomDetails = () => {
   // ---------------- FETCH USER ----------------
   const getMe = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/vercodex/me", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/me",
+        {
+          withCredentials: true,
+        },
+      );
 
       setCurrentUserId(res.data.data._id);
     } catch (err) {
@@ -61,7 +64,7 @@ const RoomDetails = () => {
   const leaveRoom = async () => {
     try {
       await axios.post(
-        `http://localhost:3000/vercodex/room/leave?roomId=${roomId}`,
+        `https://real-time-code-editor-vercodex.onrender.com/vercodex/room/leave?roomId=${roomId}`,
         {},
         { withCredentials: true },
       );
@@ -76,7 +79,7 @@ const RoomDetails = () => {
   const removeUser = async (userId) => {
     try {
       await axios.post(
-        "http://localhost:3000/vercodex/room/remove-member",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/remove-member",
         { roomId, userId },
         { withCredentials: true },
       );

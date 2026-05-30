@@ -9,9 +9,12 @@ const Room = () => {
 
   const getRooms = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/vercodex/rooms", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/rooms",
+        {
+          withCredentials: true,
+        },
+      );
 
       setRooms(res.data.data.rooms || []);
     } catch (err) {

@@ -37,7 +37,7 @@ const Chat = () => {
   const fetchMessages = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/vercodex/get/message/${roomId}`,
+        `https://real-time-code-editor-vercodex.onrender.com/vercodex/get/message/${roomId}`,
         { withCredentials: true },
       );
       setMessages(res.data.data.chat || []);
@@ -71,7 +71,7 @@ const Chat = () => {
       setSending(true);
 
       await axios.post(
-        "http://localhost:3000/vercodex/send/message",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/send/message",
         {
           roomId,
           content: message.trim(),
@@ -93,7 +93,7 @@ const Chat = () => {
     try {
       setError("");
       await axios.patch(
-        `http://localhost:3000/vercodex/edit/message/${messageId}`,
+        `https://real-time-code-editor-vercodex.onrender.com/vercodex/edit/message/${messageId}`,
         { content: editingContent.trim() },
         { withCredentials: true },
       );
@@ -109,7 +109,7 @@ const Chat = () => {
     try {
       setError("");
       await axios.delete(
-        `http://localhost:3000/vercodex/delete/everyone/${roomId}?chatId=${chatId}`,
+        `https://real-time-code-editor-vercodex.onrender.com/vercodex/delete/everyone/${roomId}?chatId=${chatId}`,
         { withCredentials: true },
       );
     } catch (err) {
@@ -122,7 +122,7 @@ const Chat = () => {
     try {
       setError("");
       await axios.patch(
-        "http://localhost:3000/vercodex/delete/me",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/delete/me",
         { roomId, messageIds: [chatId] },
         { withCredentials: true },
       );

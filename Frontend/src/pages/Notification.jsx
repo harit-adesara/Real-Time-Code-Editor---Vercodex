@@ -12,7 +12,7 @@ const Notifications = () => {
   const getNotifications = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3000/vercodex/notifications",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/notifications",
         {
           withCredentials: true,
         },
@@ -30,7 +30,7 @@ const Notifications = () => {
   const deleteNotification = async (notificationId) => {
     try {
       await axios.delete(
-        `http://localhost:3000/vercodex/notifications/delete/${notificationId}`,
+        `https://real-time-code-editor-vercodex.onrender.com/vercodex/notifications/delete/${notificationId}`,
         {
           withCredentials: true,
         },
@@ -63,7 +63,7 @@ const Notifications = () => {
     console.log("Joining room with code:", roomCode); // Debug log
     try {
       await axios.post(
-        "http://localhost:3000/vercodex/room/join-invite",
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/join-invite",
         { roomCode },
         {
           withCredentials: true,
@@ -92,7 +92,7 @@ const Notifications = () => {
 
     // Mark all notifications as read automatically
     axios.patch(
-      "http://localhost:3000/vercodex/notifications/mark-read",
+      "https://real-time-code-editor-vercodex.onrender.com/vercodex/notifications/mark-read",
       {},
       {
         withCredentials: true,

@@ -12,9 +12,12 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/vercodex/me", {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        "https://real-time-code-editor-vercodex.onrender.com/vercodex/me",
+        {
+          withCredentials: true,
+        },
+      );
       setUser(res.data.data);
     } catch (err) {
       setUser(null);
