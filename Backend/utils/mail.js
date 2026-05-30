@@ -94,7 +94,6 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 console.log("CLIENT_ID:", !!process.env.GOOGLE_CLIENT_ID);
-cd;
 console.log("CLIENT_SECRET:", !!process.env.GOOGLE_CLIENT_SECRET);
 console.log("REFRESH_TOKEN:", !!process.env.GOOGLE_REFRESH_TOKEN);
 console.log("GMAIL_USER:", !!process.env.GMAIL_USER);
