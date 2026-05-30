@@ -9,6 +9,9 @@ const sendEmail = async (option) => {
       link: "https://vercodex.com",
     },
   });
+  console.log("📧 Sending email to:", option.email);
+  console.log("📧 Using Gmail user:", process.env.GMAIL_USER);
+  console.log("📧 Port:", parseInt(process.env.GMAIL_PORT));
   const emailTextual = mailGenerator.generatePlaintext(option.mailgenContent);
   const emailHtml = mailGenerator.generate(option.mailgenContent);
   const transporter = nodemailer.createTransport({
@@ -19,6 +22,9 @@ const sendEmail = async (option) => {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASS,
     },
+    connectionTimeout: 10000, // 10 seconds to connect
+    greetingTimeout: 10000, // 10 seconds for greeting
+    socketTimeout: 15000,
   });
   const mail = {
     from: `"Vercodex" <${process.env.GMAIL_USER}>`,
@@ -30,10 +36,10 @@ const sendEmail = async (option) => {
 
   try {
     await transporter.sendMail(mail);
-    console.log("✅ Email sent successfully to", option.email);
+    console.log("✅ Email sent to", option.email);
   } catch (error) {
-    console.error("❌ Email sending failed:", error.message); // ✅ clear error
-    throw error; // ✅ don't silently fail — let caller know
+    console.error("❌ Email failed:", error.message); // ✅ will now show in Render logs
+    throw error; // ✅ propagate so registration also fails with a real error
   }
 };
 
