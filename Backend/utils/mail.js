@@ -14,13 +14,12 @@ const sendEmail = async (option) => {
   const transporter = nodemailer.createTransport({
     host: process.env.GMAIL_HOST,
     port: parseInt(process.env.GMAIL_PORT),
-    secure: true,
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_PASS,
     },
-    connectionTimeout: 10000, // 10 seconds to connect
-    greetingTimeout: 10000, // 10 seconds for greeting
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
     socketTimeout: 15000,
   });
   const mail = {
@@ -40,9 +39,6 @@ const sendEmail = async (option) => {
     await transporter.sendMail(mail);
     console.log("✅ Email sent to", option.email);
   } catch (error) {
-    console.error("❌ SMTP Error Code:", error.code);
-    console.error("❌ SMTP Error Message:", error.message);
-    console.error("❌ SMTP Response:", error.response);
     throw error;
   }
 };
