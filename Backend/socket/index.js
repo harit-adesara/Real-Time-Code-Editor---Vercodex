@@ -12,7 +12,7 @@ let io;
 const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "https://real-time-code-editor-vercodex.vercel.app/",
+      origin: "https://real-time-code-editor-vercodex.vercel.app",
       credentials: true,
     },
   });

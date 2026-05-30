@@ -263,7 +263,7 @@ const forgotPasswordRequest = asyncHandler(async (req, res) => {
     subject: "Password reset request",
     mailgenContent: forgotPasswordMailgenContent(
       user.fullname,
-      `https://real-time-code-editor-vercodex.vercel.app//reset-password/${unHashedToken}`,
+      `https://real-time-code-editor-vercodex.vercel.app/reset-password/${unHashedToken}`,
     ),
   });
 
