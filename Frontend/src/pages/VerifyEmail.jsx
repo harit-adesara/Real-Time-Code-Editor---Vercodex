@@ -15,9 +15,7 @@ const VerifyEmail = () => {
 
         if (res.data.success) {
           setTimeout(() => {
-            navigate(
-              "https://real-time-code-editor-vercodex.onrender.com/vercodex/login",
-            );
+            navigate("/login");
           }, 1500);
         }
       } catch (err) {}
