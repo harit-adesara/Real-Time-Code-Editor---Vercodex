@@ -134,7 +134,7 @@ const registerUser = asyncHandler(async (req, res) => {
     subject: "Verify your account",
     mailgenContent: registerEmail(
       user.name,
-      `${process.env.registerUrl}/${unHashedToken}`,
+      `https://real-time-code-editor-vercodex.vercel.app/verify/${unHashedToken}`,
     ),
   });
 
