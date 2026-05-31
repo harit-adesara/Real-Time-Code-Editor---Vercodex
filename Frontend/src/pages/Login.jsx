@@ -163,7 +163,7 @@ const Login = () => {
       {/* RIGHT SIDE - IMAGE */}
       <div className="w-full md:w-1/2 h-64 sm:h-80 md:h-screen">
         <img
-          src="../image/logo.png"
+          src="/logo.png"
           alt="Logo"
           className="w-full h-full object-cover"
         />
