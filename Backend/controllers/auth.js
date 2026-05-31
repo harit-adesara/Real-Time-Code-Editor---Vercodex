@@ -177,11 +177,13 @@ const verifyEmail = asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   return res.status(200).json(
-    200,
-    {
-      isEmailVerified: true,
-    },
-    "Email is verified",
+    new ApiResponse(
+      200,
+      {
+        isEmailVerified: true,
+      },
+      "Email is verified",
+    ),
   );
 });
 

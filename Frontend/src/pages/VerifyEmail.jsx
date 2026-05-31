@@ -20,8 +20,6 @@ const VerifyEmail = () => {
           },
         );
 
-        console.log(res.data.data);
-
         if (res.data?.data?.isEmailVerified) {
           setStatus("success");
 
