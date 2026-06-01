@@ -59,15 +59,22 @@ const loginJWT = asyncHandler(async (req, res) => {
   const loggedInUser = await User.findById(user._id).select(
     "-password -isEmailVerified -refreshToken -forgetPasswordExpiry -forgetPasswordToken",
   );
-  const options = {
+  const accessTokenOptions = {
     httpOnly: true,
     sameSite: "None",
     secure: true,
+    maxAge: 3 * 24 * 60 * 60 * 1000,
+  };
+  const refreshTokenOptions = {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+    maxAge: 15 * 24 * 60 * 60 * 1000,
   };
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, accessTokenOptions)
+    .cookie("refreshToken", refreshToken, refreshTokenOptions)
     .json(
       new ApiResponse(
         200,
@@ -88,6 +95,7 @@ const logOut = asyncHandler(async (req, res) => {
   }
   user.refreshToken = "";
   await user.save({ validateBeforeSave: false });
+
   const options = {
     httpOnly: true,
     sameSite: "None",
@@ -217,21 +225,26 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Refresh token is invalid");
     }
 
-    const options = {
+    const accessTokenOptions = {
       httpOnly: true,
       sameSite: "None",
       secure: true,
+      maxAge: 3 * 24 * 60 * 60 * 1000,
+    };
+    const refreshTokenOptions = {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+      maxAge: 15 * 24 * 60 * 60 * 1000,
     };
 
     const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefreshToken(user._id);
-    user.refreshToken = newRefreshToken;
-    await user.save();
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
+      .cookie("accessToken", accessToken, accessTokenOptions)
+      .cookie("refreshToken", newRefreshToken, refreshTokenOptions)
       .json(
         new ApiResponse(
           200,
@@ -264,7 +277,7 @@ const forgotPasswordRequest = asyncHandler(async (req, res) => {
     email: user?.email,
     subject: "Password reset request",
     mailgenContent: forgotPasswordMailgenContent(
-      user.fullname,
+      user.name,
       `https://real-time-code-editor-vercodex.vercel.app/reset-password/${unHashedToken}`,
     ),
   });
@@ -338,6 +351,10 @@ const resendRegisterMail = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
   if (user.isEmailVerified) {
     throw new ApiError("Email is already verified");
