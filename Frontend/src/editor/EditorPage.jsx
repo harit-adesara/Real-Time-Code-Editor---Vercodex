@@ -568,6 +568,10 @@ const EditorPage = () => {
           node._id === data._id ? { ...node, name: data.newName } : node,
         ),
       );
+
+      setSelectedFile((prev) =>
+        prev && prev._id === data._id ? { ...prev, name: data.newName } : prev,
+      );
     });
 
     socket.on("delete-node", (data) => {
@@ -1202,7 +1206,7 @@ const EditorPage = () => {
           <div className="flex-1 overflow-hidden">
             {selectedFile ? (
               <Editor
-                key={selectedFile._id}
+                key={`${selectedFile._id}-${selectedFile.name}`}
                 height="100%"
                 language={getLanguage(selectedFile.name)}
                 theme="vs-dark"
