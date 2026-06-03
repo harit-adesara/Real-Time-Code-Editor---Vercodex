@@ -4,7 +4,7 @@ const Guidelines = () => {
   return (
     <div className="text-white p-6 max-w-4xl mx-auto">
       {/* HEADER */}
-      <h1 className="text-3xl font-bold mb-6">Welcome to Vercodex 🚀</h1>
+      <h1 className="text-3xl font-bold mb-6">Welcome to Vercodex</h1>
 
       {/* INTRO */}
       <div className="bg-[rgb(15,23,42)] border border-white/10 p-6 rounded-2xl mb-6">
