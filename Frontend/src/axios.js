@@ -10,6 +10,7 @@ axios.interceptors.response.use(
     const originalRequest = error.config;
 
     if (originalRequest.url.includes("/refresh-token")) {
+      window.location.href = "/login";
       return Promise.reject(error);
     }
 
