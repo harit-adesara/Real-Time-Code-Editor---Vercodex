@@ -9,7 +9,7 @@ axios.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (originalRequest.url.includes("/refresh-access-token")) {
+    if (originalRequest.url.includes("/refresh-token")) {
       return Promise.reject(error);
     }
 
