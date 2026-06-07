@@ -52,7 +52,10 @@ const sendMessage = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, {}, "Message sent"));
   } catch (error) {
-    throw new ApiError(404, "Error while sending msg");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while sending msg",
+    );
   }
 });
 
@@ -91,7 +94,10 @@ const getMessage = asyncHandler(async (req, res) => {
       ),
     );
   } catch (error) {
-    throw new ApiError(404, "Error while getting messages");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while getting messages",
+    );
   }
 });
 
@@ -140,7 +146,10 @@ const editMessage = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, {}, "Message edited"));
   } catch (error) {
-    throw new ApiError(404, "Error while editing message");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while editing message",
+    );
   }
 });
 
@@ -194,45 +203,57 @@ const deleteMessageEveryone = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { chat }, "Message deleted successfully"));
   } catch (error) {
-    throw new ApiError(404, "Error while deleting");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while deleting",
+    );
   }
 });
 
 const deleteForMe = asyncHandler(async (req, res) => {
-  const { messageIds } = req.body;
-  const { roomId } = req.body;
-  const userId = req.user._id;
+  try {
+    const { messageIds } = req.body;
+    const { roomId } = req.body;
+    const userId = req.user._id;
 
-  if (messageIds.length === 0) {
-    throw new ApiError(404, "Messages are required");
-  }
+    if (messageIds.length === 0) {
+      throw new ApiError(404, "Messages are required");
+    }
 
-  const io = getIO();
+    const io = getIO();
 
-  if (!userId) {
-    throw new ApiError(404, "User ID is required");
-  }
+    if (!userId) {
+      throw new ApiError(404, "User ID is required");
+    }
 
-  const room = await Room.findById(roomId);
+    const room = await Room.findById(roomId);
 
-  if (!room) {
-    throw new ApiError(404, "Room not found");
-  }
+    if (!room) {
+      throw new ApiError(404, "Room not found");
+    }
 
-  const message = await Chat.updateMany(
-    { _id: { $in: messageIds } },
-    {
-      $addToSet: {
-        hiddenFor: userId,
+    const message = await Chat.updateMany(
+      { _id: { $in: messageIds } },
+      {
+        $addToSet: {
+          hiddenFor: userId,
+        },
       },
-    },
-  );
+    );
 
-  io.to(userId.toString()).emit("delete-for-me", {
-    message,
-  });
+    io.to(userId.toString()).emit("delete-for-me", {
+      message,
+    });
 
-  return res.status(200).json(new ApiResponse(200, {}, "Messages are deleted"));
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Messages are deleted"));
+  } catch (error) {
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while deleting message",
+    );
+  }
 });
 
 export {

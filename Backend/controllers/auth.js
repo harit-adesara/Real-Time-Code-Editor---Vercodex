@@ -209,52 +209,52 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Unauthorized user");
   }
-  try {
-    const decodedToken = jwt.verify(
-      incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET,
-    );
+  const decodedToken = jwt.verify(
+    incomingRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET,
+  );
 
-    const user = await User.findById(decodedToken?._id);
+  if (!decodedToken) {
+    throw new ApiError(401, "Not valid token");
+  }
 
-    if (!user) {
-      throw new ApiError(401, "Invalid refresh token");
-    }
+  const user = await User.findById(decodedToken?._id);
 
-    if (incomingRefreshToken !== user?.refreshToken) {
-      throw new ApiError(401, "Refresh token is invalid");
-    }
-
-    const accessTokenOptions = {
-      httpOnly: true,
-      sameSite: "None",
-      secure: true,
-      maxAge: 3 * 24 * 60 * 60 * 1000,
-    };
-    const refreshTokenOptions = {
-      httpOnly: true,
-      sameSite: "None",
-      secure: true,
-      maxAge: 15 * 24 * 60 * 60 * 1000,
-    };
-
-    const { accessToken, refreshToken: newRefreshToken } =
-      await generateAccessAndRefreshToken(user._id);
-
-    return res
-      .status(200)
-      .cookie("accessToken", accessToken, accessTokenOptions)
-      .cookie("refreshToken", newRefreshToken, refreshTokenOptions)
-      .json(
-        new ApiResponse(
-          200,
-          { accessToken, refreshToken: newRefreshToken, user },
-          "Access token refreshed",
-        ),
-      );
-  } catch (error) {
+  if (!user) {
     throw new ApiError(401, "Invalid refresh token");
   }
+
+  if (incomingRefreshToken !== user?.refreshToken) {
+    throw new ApiError(401, "Refresh token is invalid");
+  }
+
+  const accessTokenOptions = {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+    maxAge: 3 * 24 * 60 * 60 * 1000,
+  };
+  const refreshTokenOptions = {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+    maxAge: 15 * 24 * 60 * 60 * 1000,
+  };
+
+  const { accessToken, refreshToken: newRefreshToken } =
+    await generateAccessAndRefreshToken(user._id);
+
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, accessTokenOptions)
+    .cookie("refreshToken", newRefreshToken, refreshTokenOptions)
+    .json(
+      new ApiResponse(
+        200,
+        { accessToken, refreshToken: newRefreshToken, user },
+        "Access token refreshed",
+      ),
+    );
 });
 
 const forgotPasswordRequest = asyncHandler(async (req, res) => {
@@ -357,7 +357,7 @@ const resendRegisterMail = asyncHandler(async (req, res) => {
   }
 
   if (user.isEmailVerified) {
-    throw new ApiError("Email is already verified");
+    throw new ApiError(404, "Email is already verified");
   }
 
   const { unHashedToken, hashedToken, tokenExpiry } =

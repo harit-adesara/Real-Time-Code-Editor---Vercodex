@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../axios.js";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "../socket";
 

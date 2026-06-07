@@ -1,7 +1,7 @@
 // context/AuthContext.jsx
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../axios.js";
 import { socket } from "../socket.js";
 
 export const AuthContext = createContext();

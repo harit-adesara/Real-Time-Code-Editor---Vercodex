@@ -15,64 +15,71 @@ const createCode = () => {
 };
 
 const createRoom = asyncHandler(async (req, res) => {
-  const { name, password } = req.body;
-
-  if (!name || !password) {
-    throw new ApiError(404, "Name and password required");
-  }
-
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    const room = await Room.create(
-      [
-        {
-          name,
-          password,
-          roomCode: createCode(),
-          ownerId: req.user._id,
-        },
-      ],
-      { session },
-    );
+    const { name, password } = req.body;
 
-    const member = await Members.create(
-      [
-        {
-          roomId: room[0]._id,
-          userId: req.user._id,
-          role: "Owner",
-          joinedAt: new Date(),
-        },
-      ],
-      { session },
-    );
-
-    await session.commitTransaction();
-    session.endSession();
-
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          { room: room[0], memeber: member[0] },
-          "Room created successfully",
-        ),
-      );
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-
-    if (error.code === 11000) {
-      throw new ApiError(
-        500,
-        "Failed to generate unique room code. Please try again.",
-      );
+    if (!name || !password) {
+      throw new ApiError(404, "Name and password required");
     }
 
-    throw new ApiError(404, "Error while creating room");
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const room = await Room.create(
+        [
+          {
+            name,
+            password,
+            roomCode: createCode(),
+            ownerId: req.user._id,
+          },
+        ],
+        { session },
+      );
+
+      const member = await Members.create(
+        [
+          {
+            roomId: room[0]._id,
+            userId: req.user._id,
+            role: "Owner",
+            joinedAt: new Date(),
+          },
+        ],
+        { session },
+      );
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            { room: room[0], memeber: member[0] },
+            "Room created successfully",
+          ),
+        );
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      if (error.code === 11000) {
+        throw new ApiError(
+          500,
+          "Failed to generate unique room code. Please try again.",
+        );
+      }
+
+      throw new ApiError(404, "Error while creating room");
+    }
+  } catch (error) {
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error in creating room",
+    );
   }
 });
 
@@ -93,7 +100,7 @@ const joinRoomPassword = asyncHandler(async (req, res) => {
     const check = await bcrypt.compare(password, room.password);
 
     if (!check) {
-      throw new ApiError(401, "Password is incorrect");
+      throw new ApiError(404, "Password is incorrect");
     }
 
     const exists = await Members.findOne({
@@ -234,7 +241,10 @@ const sendInvitationToJoinRoom = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, notification, "Invitation sent"));
   } catch (error) {
-    throw new ApiError(404, "Error while sending invitation");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while sending invitation",
+    );
   }
 });
 
@@ -258,7 +268,10 @@ const getNotifications = asyncHandler(async (req, res) => {
         ),
       );
   } catch (error) {
-    throw new ApiError(404, "Error while fetching notification");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while fetching notification",
+    );
   }
 });
 
@@ -274,7 +287,10 @@ const getUnreadCount = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { unreadCount }, "Unread count fetched"));
   } catch (error) {
-    throw new ApiError(404, "Can not get unread count");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Can not get unread count",
+    );
   }
 });
 
@@ -303,7 +319,10 @@ const markNotificationsRead = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, {}, "Notifications marked as read"));
   } catch (error) {
-    throw new ApiError(404, "Error while marking notification as read");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while marking notification as read",
+    );
   }
 });
 
@@ -424,100 +443,113 @@ const softDeleteNotification = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, {}, "Notification deleted successfully"));
   } catch (error) {
-    throw new ApiError(404, "Error while deleting notification");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while deleting notification",
+    );
   }
 });
 
 const removeMember = asyncHandler(async (req, res) => {
-  const { roomId, userId } = req.body;
-
-  if (!roomId || !userId) {
-    throw new ApiError(404, "Room ID and user ID is required");
-  }
-
-  const io = getIO();
-
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    const room = await Room.findById(roomId).session(session);
+    const { roomId, userId } = req.body;
 
-    if (!room) {
-      throw new ApiError(404, "Room not found");
+    if (!roomId || !userId) {
+      throw new ApiError(404, "Room ID and user ID is required");
     }
 
-    if (room.ownerId.toString() !== req.user._id.toString()) {
-      throw new ApiError(404, "Only owner can remove user");
-    }
+    const io = getIO();
 
-    if (userId === req.user._id.toString()) {
-      throw new ApiError(404, "You can not remove yourself");
-    }
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    const user = await Members.findOneAndUpdate(
-      { roomId, userId, isDeleted: false },
-      {
-        $set: {
-          isDeleted: true,
-        },
-      },
-      { new: true, session },
-    );
+    try {
+      const room = await Room.findById(roomId).session(session);
 
-    if (!user) {
-      throw new ApiError(404, "Error while modifying user");
-    }
+      if (!room) {
+        throw new ApiError(404, "Room not found");
+      }
 
-    const notification = await Notification.create(
-      [
+      if (room.ownerId.toString() !== req.user._id.toString()) {
+        throw new ApiError(404, "Only owner can remove user");
+      }
+
+      if (userId === req.user._id.toString()) {
+        throw new ApiError(404, "You can not remove yourself");
+      }
+
+      const user = await Members.findOneAndUpdate(
+        { roomId, userId, isDeleted: false },
         {
-          receiverId: userId,
-          senderId: req.user._id,
-          type: "KICK_OUT",
-          title: "Removed From Room",
-          message: `You were removed from ${room.name}`,
-          roomId: room._id,
+          $set: {
+            isDeleted: true,
+          },
         },
-      ],
-      { session },
-    );
+        { new: true, session },
+      );
 
-    await session.commitTransaction();
-    session.endSession();
+      if (!user) {
+        throw new ApiError(404, "Error while modifying user");
+      }
 
-    io.to(roomId.toString()).emit("member-removed", {
-      userId,
-    });
+      const notification = await Notification.create(
+        [
+          {
+            receiverId: userId,
+            senderId: req.user._id,
+            type: "KICK_OUT",
+            title: "Removed From Room",
+            message: `You were removed from ${room.name}`,
+            roomId: room._id,
+          },
+        ],
+        { session },
+      );
 
-    io.to(userId.toString()).emit("new-invitation", {
-      _id: notification[0]._id,
-      roomId: room._id,
-      title: "Removed From Room",
-      type: "KICK_OUT",
-      roomName: room.name,
-      metadata: {
-        roomCode: room.roomCode,
-      },
-      receiverId: user._id,
-      message: `You were removed from ${room.name}`,
-      senderId: {
-        username: req.user.username,
-      },
-      createdAt: notification[0].createdAt,
-    });
+      await session.commitTransaction();
+      session.endSession();
 
-    // io.to(userId.toString()).emit("kicked-out", {
-    //   roomId,
-    // });
+      io.to(roomId.toString()).emit("member-removed", {
+        userId,
+      });
 
-    return res
-      .status(200)
-      .json(new ApiResponse(200, {}, "User removed successfully"));
+      io.to(userId.toString()).emit("new-invitation", {
+        _id: notification[0]._id,
+        roomId: room._id,
+        title: "Removed From Room",
+        type: "KICK_OUT",
+        roomName: room.name,
+        metadata: {
+          roomCode: room.roomCode,
+        },
+        receiverId: user._id,
+        message: `You were removed from ${room.name}`,
+        senderId: {
+          username: req.user.username,
+        },
+        createdAt: notification[0].createdAt,
+      });
+
+      // io.to(userId.toString()).emit("kicked-out", {
+      //   roomId,
+      // });
+
+      return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "User removed successfully"));
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw new ApiError(
+        error.statusCode || 404,
+        error.message || "Error while removing user",
+      );
+    }
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-    throw new ApiError(404, "Error while removing user");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while removing member",
+    );
   }
 });
 
@@ -540,7 +572,10 @@ const getTotalRoom = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { rooms }, "Rooms fetched successfully"));
   } catch (error) {
-    throw new ApiError(404, "Error while fetching rooms");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while fetching rooms",
+    );
   }
 });
 
@@ -563,90 +598,105 @@ const getUser = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { users }, "User fetched"));
   } catch (error) {
-    throw new ApiError(404, "Error while fectching user");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while fectching user",
+    );
   }
 });
 
 const leaveRoom = asyncHandler(async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    const { roomId } = req.query;
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    if (!roomId) {
-      throw new ApiError(400, "Room ID is required");
-    }
+    try {
+      const { roomId } = req.query;
 
-    const io = getIO();
+      if (!roomId) {
+        throw new ApiError(400, "Room ID is required");
+      }
 
-    const roomDetail = await Room.findById(roomId).session(session);
+      const io = getIO();
 
-    if (!roomDetail) {
-      throw new ApiError(404, "Room not found");
-    }
+      const roomDetail = await Room.findById(roomId).session(session);
 
-    const userId = req.user._id.toString();
-    const ownerId = roomDetail.ownerId.toString();
+      if (!roomDetail) {
+        throw new ApiError(404, "Room not found");
+      }
 
-    if (ownerId === userId) {
-      roomDetail.isDeleted = true;
-      await roomDetail.save({ session });
+      const userId = req.user._id.toString();
+      const ownerId = roomDetail.ownerId.toString();
 
-      await Members.updateMany(
+      if (ownerId === userId) {
+        roomDetail.isDeleted = true;
+        await roomDetail.save({ session });
+
+        await Members.updateMany(
+          {
+            roomId: roomId,
+            isDeleted: false,
+          },
+          {
+            $set: { isDeleted: true },
+          },
+          { session },
+        );
+
+        await session.commitTransaction();
+        session.endSession();
+
+        io.to(roomId.toString()).emit("room-deleted", {
+          roomId,
+        });
+
+        return res.status(200).json(new ApiResponse(200, {}, "Room deleted"));
+      }
+
+      const memberUpdate = await Members.findOneAndUpdate(
         {
           roomId: roomId,
+          userId: userId,
           isDeleted: false,
         },
         {
           $set: { isDeleted: true },
         },
-        { session },
+        {
+          new: true,
+          session,
+        },
       );
+
+      if (!memberUpdate) {
+        throw new ApiError(404, "Member not found in room");
+      }
 
       await session.commitTransaction();
       session.endSession();
 
-      io.to(roomId.toString()).emit("room-deleted", {
-        roomId,
+      io.to(roomId.toString()).emit("member-left", {
+        userId: req.user._id,
+        username: req.user.username,
       });
 
-      return res.status(200).json(new ApiResponse(200, {}, "Room deleted"));
+      return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "Left successfully"));
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      throw new ApiError(
+        error.statusCode || 500,
+        error.message || "Error while leaving room",
+      );
     }
-
-    const memberUpdate = await Members.findOneAndUpdate(
-      {
-        roomId: roomId,
-        userId: userId,
-        isDeleted: false,
-      },
-      {
-        $set: { isDeleted: true },
-      },
-      {
-        new: true,
-        session,
-      },
-    );
-
-    if (!memberUpdate) {
-      throw new ApiError(404, "Member not found in room");
-    }
-
-    await session.commitTransaction();
-    session.endSession();
-
-    io.to(roomId.toString()).emit("member-left", {
-      userId: req.user._id,
-      username: req.user.username,
-    });
-
-    return res.status(200).json(new ApiResponse(200, {}, "Left successfully"));
   } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-
-    throw new ApiError(500, "Error while leaving room");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while leaving room",
+    );
   }
 });
 
@@ -666,7 +716,10 @@ const getRoomDetail = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { roomDetail }, "Room details fetched"));
   } catch (error) {
-    throw new ApiError(404, "Error while fetching details");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while fetching details",
+    );
   }
 });
 
@@ -684,7 +737,10 @@ const getTotalUserInRoom = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { users }, "All room user fetched"));
   } catch (error) {
-    throw new ApiError(404, "Error while fechting users");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while fechting users",
+    );
   }
 });
 

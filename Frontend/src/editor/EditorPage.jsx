@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import Editor from "@monaco-editor/react";
-import axios from "axios";
+import axios from "../axios.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { AuthContext } from "../context/Auth.jsx";

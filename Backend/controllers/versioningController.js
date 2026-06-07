@@ -125,7 +125,7 @@ const commitFile = asyncHandler(async (req, res) => {
       !msg ||
       msg.trim() === ""
     ) {
-      throw new ApiError(404, "Please give reuired fields");
+      throw new ApiError(404, "Please give required fields");
     }
 
     const job = await versionQueue.add("commit", {
@@ -144,28 +144,32 @@ const commitFile = asyncHandler(async (req, res) => {
 });
 
 const restoreFile = asyncHandler(async (req, res) => {
-  const { nodeId, commitNumber } = req.body;
+  try {
+    const { nodeId, commitNumber } = req.body;
 
-  if (!nodeId) {
-    throw new ApiError(404, "File ID is required");
+    if (!nodeId) {
+      throw new ApiError(404, "File ID is required");
+    }
+
+    const job = await versionQueue.add("restore", {
+      nodeId,
+      commitNumber: Number(commitNumber),
+    });
+
+    const result = await job.waitUntilFinished(versionQueueEvents);
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          content: result,
+        },
+        "Restored",
+      ),
+    );
+  } catch (error) {
+    throw new ApiError(404, "Error while restoring");
   }
-
-  const job = await versionQueue.add("restore", {
-    nodeId,
-    commitNumber: Number(commitNumber),
-  });
-
-  const result = await job.waitUntilFinished(versionQueueEvents);
-
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      {
-        content: result,
-      },
-      "Restored",
-    ),
-  );
 });
 
 const commitGraph = asyncHandler(async (req, res) => {

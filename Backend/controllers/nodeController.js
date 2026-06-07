@@ -45,7 +45,10 @@ const createFile = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, { file }, "File created"));
   } catch (error) {
-    throw new ApiError(404, "File not created");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "File not created",
+    );
   }
 });
 
@@ -89,7 +92,10 @@ const createFolder = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { folder }, "Folder created successfully"));
   } catch (error) {
-    throw new ApiError(404, "Folder not created");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Folder not created",
+    );
   }
 });
 
@@ -112,7 +118,10 @@ const updateContent = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, {}, "File updated"));
   } catch (error) {
-    throw new ApiError(404, "Error while saving file");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while saving file",
+    );
   }
 });
 
@@ -154,7 +163,10 @@ const renameNode = async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, {}, "Renamed successsfully"));
   } catch (error) {
-    throw new ApiError(404, "Error while renaming");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while renaming",
+    );
   }
 };
 
@@ -175,7 +187,10 @@ const getTree = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, { nodes }, "Nodes fetched"));
   } catch (error) {
-    throw new ApiError(404, "Error while fetching nodes");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while fetching nodes",
+    );
   }
 });
 
@@ -235,7 +250,10 @@ const deleteNode = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, {}, "Deleted successfully"));
   } catch (error) {
-    throw new ApiError(404, "Error while deleting");
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while deleting",
+    );
   }
 });
 

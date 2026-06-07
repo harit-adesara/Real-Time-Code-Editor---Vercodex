@@ -11,13 +11,13 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
       req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
-      throw new ApiError(404, "Token not found");
+      throw new ApiError(401, "Token not found");
     }
 
     const decodeToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     if (!decodeToken) {
-      throw new ApiError(404, "Decoded token not found");
+      throw new ApiError(401, "Decoded token not found");
     }
 
     const user = await User.findById(decodeToken?._id).select(
@@ -25,12 +25,15 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     );
 
     if (!user) {
-      throw new ApiError(404, "User not found");
+      throw new ApiError(401, "User not found");
     }
     req.user = user;
     next();
   } catch (error) {
-    throw new ApiError(404, "Error in jwt verify");
+    throw new ApiError(
+      error.statusCode || 401,
+      error.message || "Error in verify user",
+    );
   }
 });
 
