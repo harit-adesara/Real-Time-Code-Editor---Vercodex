@@ -21,26 +21,7 @@ export const AuthProvider = ({ children }) => {
 
       setUser(res.data.data);
     } catch (err) {
-      try {
-        await axios.post(
-          "https://real-time-code-editor-vercodex.onrender.com/vercodex/refresh-token",
-          {},
-          {
-            withCredentials: true,
-          },
-        );
-
-        const res = await axios.get(
-          "https://real-time-code-editor-vercodex.onrender.com/vercodex/me",
-          {
-            withCredentials: true,
-          },
-        );
-
-        setUser(res.data.data);
-      } catch (error) {
-        setUser(null);
-      }
+      setUser(null);
     } finally {
       setLoading(false);
     }
