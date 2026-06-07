@@ -28,7 +28,7 @@ axios.interceptors.response.use(
 
       try {
         await axios.post(
-          "https://real-time-code-editor-vercodex.onrender.com/vercodex/refresh-token",
+          "https://real-time-code-editor-vercodex.onrender.com/vercodex//refresh-token",
           {},
           {
             withCredentials: true,
