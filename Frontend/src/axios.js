@@ -10,7 +10,7 @@ axios.interceptors.response.use(
     const originalRequest = error.config;
 
     if (originalRequest.url.includes("/refresh-token")) {
-      window.location.href = "/login";
+      // window.location.href = "/login";
       return Promise.reject(error);
     }
 
@@ -46,7 +46,7 @@ axios.interceptors.response.use(
 
         queue = [];
 
-        window.location.href = "/login";
+        // window.location.href = "/login";
 
         return Promise.reject(err);
       } finally {
