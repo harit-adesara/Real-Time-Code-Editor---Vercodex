@@ -32,6 +32,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    const handler = () => {
+      setUser(null);
+      setLoading(false);
+    };
+
+    window.addEventListener("auth:logout", handler);
+    return () => window.removeEventListener("auth:logout", handler);
+  }, []);
+
+  useEffect(() => {
     if (user) {
       socket.connect();
     } else {

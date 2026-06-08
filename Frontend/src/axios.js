@@ -11,6 +11,8 @@ axios.interceptors.response.use(
 
     if (originalRequest.url.includes("/refresh-token")) {
       // window.location.href = "/login";
+
+      window.dispatchEvent(new Event("auth:logout"));
       return Promise.reject(error);
     }
 
@@ -46,6 +48,7 @@ axios.interceptors.response.use(
 
         queue = [];
 
+        window.dispatchEvent(new Event("auth:logout"));
         // window.location.href = "/login";
 
         return Promise.reject(err);
