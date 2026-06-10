@@ -2348,6 +2348,8 @@ const EditorPage = () => {
         },
       );
 
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
       const msg = res.data?.data?.message;
 
       setChatMessages((prev) => {
