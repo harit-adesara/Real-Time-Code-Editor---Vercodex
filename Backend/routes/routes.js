@@ -77,6 +77,8 @@ import {
   commitHistory,
 } from "../controllers/versioningController.js";
 
+import { checkOptimization, streamChat } from "../controllers/ai.js";
+
 import { verifyJWT } from "../middleware/verifyJWT.js";
 import { validate } from "../middleware/validate.js";
 
@@ -215,5 +217,11 @@ router
 router.route("/commit/graph").get(verifyJWT, commitGraph); // done
 
 router.route("/commit/history").get(verifyJWT, commitHistory); // done
+
+// ai
+
+router.route("/code/optimize").post(verifyJWT, checkOptimization);
+
+router.route("/code/chatBot").post(verifyJWT, streamChat);
 
 export { router };

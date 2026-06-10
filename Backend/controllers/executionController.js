@@ -92,7 +92,7 @@ function decodeBase64(data) {
 function formatResult(result) {
   const clean = (data) => {
     if (!data) return "";
-    return Buffer.from(data, "base64").toString("utf-8").replace(/\r\n/g, "\n"); // IMPORTANT FIX
+    return Buffer.from(data, "base64").toString("utf-8").replace(/\r\n/g, "\n");
   };
 
   return {
