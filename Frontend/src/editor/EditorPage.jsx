@@ -1068,7 +1068,7 @@ const EditorPage = () => {
               setShowChatBox(false);
             }}
             disabled={vercoAILoading}
-            className="bg-cyan-600 hover:bg-cyan-700 disabled:opacity-60 text-white px-3 py-1 rounded text-sm"
+            className="bg-fuchsia-700 hover:bg-fuchsia-900 disabled:opacity-60 text-white px-3 py-1 rounded text-sm"
           >
             {vercoAILoading ? "Checking..." : "Analysis"}
           </button>
