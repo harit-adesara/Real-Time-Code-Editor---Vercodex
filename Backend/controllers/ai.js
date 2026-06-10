@@ -78,11 +78,18 @@ export const checkOptimization = asyncHandler(async (req, res) => {
 });
 
 export const streamChat = asyncHandler(async (req, res) => {
-  const { message } = req.body;
+  const { message, history } = req.body;
 
   if (!message || message.trim() === "") {
     throw new ApiError(400, "Message is required");
   }
+
+  const recentHistory = (history || []).slice(-20);
+
+  const historyText = recentHistory
+    .filter((msg) => msg.text)
+    .map((msg) => `${msg.role === "ai" ? "Assistant" : "User"}: ${msg.text}`)
+    .join("\n");
 
   const prompt = `
 You are an intelligent AI assistant for Vercodex, a real-time code editor.
@@ -99,6 +106,10 @@ Responsibilities:
 
 User Message:
 ${message}
+
+Conversation History:
+${historyText}
+
 `;
 
   try {

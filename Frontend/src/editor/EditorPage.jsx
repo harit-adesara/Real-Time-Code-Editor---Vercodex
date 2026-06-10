@@ -825,6 +825,7 @@ const EditorPage = () => {
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/code/chatBot",
         {
           message: userMessage,
+          history: chatMessages,
         },
         {
           withCredentials: true,
