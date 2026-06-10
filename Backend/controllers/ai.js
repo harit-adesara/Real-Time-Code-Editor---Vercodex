@@ -90,24 +90,17 @@ User Message:
 ${message}
 `;
 
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Transfer-Encoding", "chunked");
-    res.setHeader("X-Accel-Buffering", "no");
-    res.flushHeaders();
-
     const stream = await ai.models.generateContentStream({
       model: "gemini-3-flash-preview",
       contents: prompt,
     });
 
-    for await (const chunk of stream) {
-      console.log(chunk.text);
-      res.write(chunk.text);
-    }
-
-    res.end();
+    return res.status(200).json(new ApiResponse(200, { message: stream.text }));
   } catch (error) {
-    if (!res.writableEnded) res.end();
+    throw new ApiError(
+      error.statusCode || 404,
+      error.message || "Error while sending response",
+    );
   }
 });
 
