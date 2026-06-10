@@ -129,7 +129,7 @@ const ai = new GoogleGenAI({
 // Use one of the valid model names below (pick whichever your API key supports):
 //   "gemini-2.0-flash"   ← recommended, fast + capable
 //   "gemini-1.5-flash"   ← fallback if 2.0 isn't on your plan
-const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_MODEL = "gemini-1.5-flash";
 
 // ── Strip markdown code fences that Gemini sometimes wraps JSON in ────────────
 // e.g.  ```json\n{...}\n```  →  {...}
@@ -185,8 +185,6 @@ export const checkOptimization = asyncHandler(async (req, res) => {
     const clean = stripJsonFences(raw);
     parsedResult = JSON.parse(clean);
   } catch (error) {
-    // Gemini API errors (invalid model, quota, network) land here.
-    // Always use 500 for unexpected server-side failures — never 404.
     throw new ApiError(
       error.statusCode || 500,
       error.message || "Error while optimizing code",
@@ -231,7 +229,6 @@ ${message}
 
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Transfer-Encoding", "chunked");
-  // Prevent proxies / Vercel edge from buffering the stream
   res.setHeader("X-Accel-Buffering", "no");
   res.flushHeaders();
 
@@ -250,8 +247,6 @@ ${message}
 
     res.end();
   } catch (error) {
-    // Headers already sent — we can't change the status code, so just end
-    // the stream cleanly. The frontend detects truncated/empty streams.
     console.error("streamChat Gemini error:", error);
     if (!res.writableEnded) {
       res.end();
