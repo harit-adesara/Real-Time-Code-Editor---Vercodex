@@ -2367,6 +2367,19 @@ const EditorPage = () => {
           };
           return updated;
         });
+
+        const tail = decoder.decode();
+        if (tail) {
+          aiText += tail;
+          setChatMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              text: aiText,
+            };
+            return updated;
+          });
+        }
       }
     } catch (err) {
       console.log(err);
@@ -2595,6 +2608,8 @@ const EditorPage = () => {
             onClick={() => {
               setShowCommitBox((prev) => !prev);
               setShowRestoreBox(false);
+              setShowAIBox(false);
+              setShowChatBox(false);
             }}
             className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm"
           >
@@ -2606,6 +2621,8 @@ const EditorPage = () => {
             onClick={() => {
               setShowRestoreBox((prev) => !prev);
               setShowCommitBox(false);
+              setShowAIBox(false);
+              setShowChatBox(false);
             }}
             className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm"
           >
@@ -2641,7 +2658,7 @@ const EditorPage = () => {
                     Ask VercoAI anything about your code…
                   </p>
                 )}
-                {chatMessages.map((msg, idx) => (
+                {/* {chatMessages.map((msg, idx) => (
                   <div
                     key={idx}
                     className={`flex flex-col gap-0.5 ${msg.role === "user" ? "items-end" : "items-start"}`}
@@ -2657,6 +2674,139 @@ const EditorPage = () => {
                       }`}
                     >
                       {msg.text || (
+                        <span className="text-gray-500 italic">Thinking…</span>
+                      )}
+                    </div>
+                  </div>
+                ))} */}
+
+                {chatMessages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex flex-col gap-0.5 ${msg.role === "user" ? "items-end" : "items-start"}`}
+                  >
+                    <span className="text-xs text-gray-500">
+                      {msg.role === "user" ? "You" : "VercoAI"}
+                    </span>
+                    <div
+                      className={`px-3 py-2 rounded-lg max-w-[85%] text-sm break-words ${
+                        msg.role === "user"
+                          ? "bg-cyan-700 text-white"
+                          : "bg-[#2d2d2d] text-gray-200"
+                      }`}
+                    >
+                      {msg.text ? (
+                        <ReactMarkdown
+                          components={{
+                            // Code blocks  ← ```cpp ... ```
+                            code({
+                              node,
+                              inline,
+                              className,
+                              children,
+                              ...props
+                            }) {
+                              return inline ? (
+                                // Inline code  ← `code`
+                                <code
+                                  className="bg-black/40 text-cyan-300 px-1 py-0.5 rounded text-xs font-mono"
+                                  {...props}
+                                >
+                                  {children}
+                                </code>
+                              ) : (
+                                <pre className="bg-black rounded-lg p-3 overflow-x-auto mt-2 mb-2">
+                                  <code
+                                    className="text-green-400 text-xs font-mono whitespace-pre"
+                                    {...props}
+                                  >
+                                    {children}
+                                  </code>
+                                </pre>
+                              );
+                            },
+                            // Tables
+                            table({ children }) {
+                              return (
+                                <div className="overflow-x-auto my-2">
+                                  <table className="text-xs border-collapse w-full">
+                                    {children}
+                                  </table>
+                                </div>
+                              );
+                            },
+                            th({ children }) {
+                              return (
+                                <th className="border border-gray-600 px-3 py-1 bg-[#1e1e1e] text-gray-300 text-left">
+                                  {children}
+                                </th>
+                              );
+                            },
+                            td({ children }) {
+                              return (
+                                <td className="border border-gray-600 px-3 py-1 text-gray-300">
+                                  {children}
+                                </td>
+                              );
+                            },
+                            // Headings
+                            h1({ children }) {
+                              return (
+                                <h1 className="text-base font-bold text-white mt-3 mb-1">
+                                  {children}
+                                </h1>
+                              );
+                            },
+                            h2({ children }) {
+                              return (
+                                <h2 className="text-sm font-bold text-white mt-3 mb-1">
+                                  {children}
+                                </h2>
+                              );
+                            },
+                            h3({ children }) {
+                              return (
+                                <h3 className="text-sm font-semibold text-cyan-400 mt-2 mb-1">
+                                  {children}
+                                </h3>
+                              );
+                            },
+                            // Lists
+                            ul({ children }) {
+                              return (
+                                <ul className="list-disc ml-4 space-y-0.5 text-gray-300">
+                                  {children}
+                                </ul>
+                              );
+                            },
+                            ol({ children }) {
+                              return (
+                                <ol className="list-decimal ml-4 space-y-0.5 text-gray-300">
+                                  {children}
+                                </ol>
+                              );
+                            },
+                            // Bold / strong
+                            strong({ children }) {
+                              return (
+                                <strong className="text-white font-semibold">
+                                  {children}
+                                </strong>
+                              );
+                            },
+                            // Paragraphs
+                            p({ children }) {
+                              return (
+                                <p className="mb-1 leading-relaxed">
+                                  {children}
+                                </p>
+                              );
+                            },
+                          }}
+                        >
+                          {msg.text}
+                        </ReactMarkdown>
+                      ) : (
                         <span className="text-gray-500 italic">Thinking…</span>
                       )}
                     </div>

@@ -6,7 +6,7 @@ import cors from "cors";
 
 app.use(
   cors({
-    origin: "https://real-time-code-editor-vercodex.vercel.app",
+    origin: "*" || "https://real-time-code-editor-vercodex.vercel.app",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
