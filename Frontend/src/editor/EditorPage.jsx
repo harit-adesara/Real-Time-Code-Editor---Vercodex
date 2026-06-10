@@ -812,7 +812,7 @@ const EditorPage = () => {
     const userMessage = chatInput.trim();
     setChatInput("");
 
-    const updatedHistory = [...chatMessagese];
+    const updatedHistory = [...chatMessages];
 
     setChatMessages((prev) => [
       ...prev,
