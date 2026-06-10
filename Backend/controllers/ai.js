@@ -45,12 +45,7 @@ export const checkOptimization = asyncHandler(async (req, res) => {
 
     const result = await optimizeCode(code, language);
 
-    const cleaned = result
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    const parsedResult = JSON.parse(cleaned);
+    const parsedResult = JSON.parse(result);
 
     return res
       .status(200)
@@ -98,11 +93,12 @@ ${message}
     res.setHeader("Transfer-Encoding", "chunked");
 
     const stream = await ai.models.generateContentStream({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: prompt,
     });
 
     for await (const chunk of stream) {
+      console.log(chunk.text);
       res.write(chunk.text);
     }
 
