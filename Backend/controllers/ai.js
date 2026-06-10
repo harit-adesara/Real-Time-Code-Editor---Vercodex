@@ -129,7 +129,7 @@ const ai = new GoogleGenAI({
 // Use one of the valid model names below (pick whichever your API key supports):
 //   "gemini-2.0-flash"   ← recommended, fast + capable
 //   "gemini-1.5-flash"   ← fallback if 2.0 isn't on your plan
-const GEMINI_MODEL = "gemini-1.5-flash";
+const GEMINI_MODEL = "gemini-3-flash-preview";
 
 // ── Strip markdown code fences that Gemini sometimes wraps JSON in ────────────
 // e.g.  ```json\n{...}\n```  →  {...}
