@@ -2300,8 +2300,6 @@ const EditorPage = () => {
       if (!selectedFile) return;
 
       setVercoAILoading(true);
-      // Close chat box if open so both panels don't overlap
-      setShowChatBox(false);
 
       const code = ydocRef.current?.getText(selectedFile._id)?.toString() || "";
       const language = getLanguage(selectedFile.name);
@@ -2331,7 +2329,11 @@ const EditorPage = () => {
     const userMessage = chatInput.trim();
     setChatInput("");
 
-    setChatMessages((prev) => [...prev, { role: "user", text: userMessage }]);
+    setChatMessages((prev) => [
+      ...prev,
+      { role: "user", text: userMessage },
+      { role: "ai", text: "" },
+    ]);
 
     setChatLoading(true);
 
@@ -2348,23 +2350,29 @@ const EditorPage = () => {
 
       const msg = res.data?.data?.message;
 
-      setChatMessages((prev) => [
-        ...prev,
-        {
+      setChatMessages((prev) => {
+        const updated = [...prev];
+
+        updated[updated.length - 1] = {
           role: "ai",
           text: msg,
-        },
-      ]);
+        };
+
+        return updated;
+      });
     } catch (err) {
       console.error(err);
 
-      setChatMessages((prev) => [
-        ...prev,
-        {
+      setChatMessages((prev) => {
+        const updated = [...prev];
+
+        updated[updated.length - 1] = {
           role: "ai",
           text: "Error generating response",
-        },
-      ]);
+        };
+
+        return updated;
+      });
     } finally {
       setChatLoading(false);
     }
@@ -2645,17 +2653,6 @@ const EditorPage = () => {
                     <span className="text-xs text-gray-500">
                       {msg.role === "user" ? "You" : "VercoAI"}
                     </span>
-                    {/* <div
-                      className={`px-3 py-2 rounded-lg max-w-[85%] text-sm whitespace-pre-wrap break-words ${
-                        msg.role === "user"
-                          ? "bg-cyan-700 text-white"
-                          : "bg-[#2d2d2d] text-gray-200"
-                      }`}
-                    >
-                      {msg.text || (
-                        <span className="text-gray-500 italic">Thinking…</span>
-                      )}
-                    </div> */}
                     <div
                       className={`px-3 py-2 rounded-lg max-w-[85%] text-sm break-words ${
                         msg.role === "user"
