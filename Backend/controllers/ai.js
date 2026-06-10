@@ -80,6 +80,8 @@ export const checkOptimization = asyncHandler(async (req, res) => {
 export const streamChat = asyncHandler(async (req, res) => {
   const { message, history } = req.body;
 
+  console.log(history);
+
   if (!message || message.trim() === "") {
     throw new ApiError(400, "Message is required");
   }
@@ -113,6 +115,8 @@ ${historyText}
 `;
 
   try {
+    console.log(prompt);
+
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [

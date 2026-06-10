@@ -812,6 +812,8 @@ const EditorPage = () => {
     const userMessage = chatInput.trim();
     setChatInput("");
 
+    const updatedHistory = [...chatMessagese];
+
     setChatMessages((prev) => [
       ...prev,
       { role: "user", text: userMessage },
@@ -825,7 +827,7 @@ const EditorPage = () => {
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/code/chatBot",
         {
           message: userMessage,
-          history: chatMessages,
+          history: updatedHistory,
         },
         {
           withCredentials: true,
