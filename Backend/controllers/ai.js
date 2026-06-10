@@ -34,6 +34,8 @@ Return ONLY valid JSON with NO markdown fences, NO extra text, NO explanation.
   "optimizedCode": "<string>"
 }
 
+Instructions: Give issues , suggesations and optimization if possible do not give any fake data
+
 Code:
 ${code}
 `;
@@ -105,6 +107,7 @@ Responsibilities:
 - Generate code
 - Debug code
 - Explain complexity
+- Simply said [I can not give you answer related this field] to any messages which is not related to this field
 
 User Message:
 ${message}
