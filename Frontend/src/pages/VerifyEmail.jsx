@@ -16,6 +16,9 @@ const VerifyEmail = () => {
       try {
         const res = await axios.get(
           `https://real-time-code-editor-vercodex.onrender.com/vercodex/verify/${verificationToken}`,
+          {
+            skipAuth: true,
+          },
         );
 
         if (res.data?.data?.isEmailVerified) {
