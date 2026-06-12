@@ -12,6 +12,7 @@ const VerifyEmail = () => {
     let timer;
 
     const verifyEmail = async () => {
+      console.log("VERIFY CALL:", verificationToken, Date.now());
       try {
         const res = await axios.get(
           `https://real-time-code-editor-vercodex.onrender.com/vercodex/verify/${verificationToken}`,
