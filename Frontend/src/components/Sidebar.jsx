@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import axios from "../axios.js";
+import axiosInstance from "../axios.js";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { socket } from "../socket";
 import { AuthContext } from "../context/Auth.jsx";
@@ -48,7 +48,7 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/logout",
         {},
         { withCredentials: true },
@@ -62,7 +62,7 @@ const Sidebar = () => {
 
   const getUnreadCount = async () => {
     try {
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/notifications/unread-count",
         {
           withCredentials: true,
