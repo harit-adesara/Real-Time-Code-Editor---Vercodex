@@ -1,10 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const VerifyEmail = () => {
   const { verificationToken } = useParams();
   const navigate = useNavigate();
+  const hasCalled = useRef(false);
 
   const [status, setStatus] = useState("loading");
 
@@ -12,6 +13,8 @@ const VerifyEmail = () => {
     let timer;
 
     const verifyEmail = async () => {
+      if (hasCalled.current) return;
+      hasCalled.current = true;
       console.log("VERIFY CALL:", verificationToken, Date.now());
       try {
         const res = await axios.get(

@@ -25,7 +25,7 @@ axiosInstance.interceptors.response.use(
         return new Promise((resolve, reject) => {
           queue.push({ resolve, reject });
         }).then(() => {
-          return axios(originalRequest);
+          return axiosInstance(originalRequest);
         });
       }
 
@@ -44,7 +44,7 @@ axiosInstance.interceptors.response.use(
 
         queue = [];
 
-        return axios(originalRequest);
+        return axiosInstance(originalRequest);
       } catch (err) {
         queue.forEach(({ reject }) => reject(err));
 
