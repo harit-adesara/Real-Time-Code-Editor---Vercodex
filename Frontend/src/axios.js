@@ -9,7 +9,19 @@ axios.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (originalRequest?.skipAuth) {
+    const publicRoutes = [
+      "/verify",
+      "/login",
+      "/register",
+      "/forgot-password",
+      "/reset-password",
+    ];
+
+    const isPublicRoute = publicRoutes.some((route) =>
+      originalRequest.url?.includes(route),
+    );
+
+    if (isPublicRoute) {
       return Promise.reject(error);
     }
 
