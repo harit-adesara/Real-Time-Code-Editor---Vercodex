@@ -17,6 +17,10 @@ const VerifyEmail = () => {
           `https://real-time-code-editor-vercodex.onrender.com/vercodex/verify/${verificationToken}`,
         );
 
+        console.log("STATUS:", res.status);
+        console.log("DATA:", res.data);
+        console.log("isEmailVerified:", res.data?.data?.isEmailVerified);
+
         if (res.data?.data?.isEmailVerified) {
           setStatus("success");
 
