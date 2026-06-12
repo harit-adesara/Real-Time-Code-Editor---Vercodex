@@ -32,7 +32,10 @@ const VerifyEmail = () => {
           }, 1500);
         }
       } catch (err) {
-        console.error(err);
+        console.log("STATUS:", err.response?.status);
+        console.log("DATA:", err.response?.data);
+        console.log("URL:", err.config?.url);
+        console.log("FULL ERROR:", err);
         setStatus("failed");
 
         timer = setTimeout(() => {
