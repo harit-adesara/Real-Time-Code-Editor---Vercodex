@@ -145,7 +145,7 @@ const VerifyEmail = () => {
     }
     if (status === "failed") {
       const timer = setTimeout(
-        () => navigate("/register", { replace: true }),
+        () => navigate("/resend-verification", { replace: true }),
         2000,
       );
       return () => clearTimeout(timer);
