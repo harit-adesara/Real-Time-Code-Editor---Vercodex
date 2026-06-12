@@ -17,22 +17,12 @@ const VerifyEmail = () => {
           `https://real-time-code-editor-vercodex.onrender.com/vercodex/verify/${verificationToken}`,
         );
 
-        console.log("STATUS:", res.status);
-        console.log("DATA:", res.data);
-        console.log("isEmailVerified:", res.data?.data?.isEmailVerified);
-
         if (res.data?.data?.isEmailVerified) {
           setStatus("success");
 
           timer = setTimeout(() => {
             navigate("/login");
           }, 1500);
-        } else {
-          setStatus("failed");
-
-          timer = setTimeout(() => {
-            navigate("/resend-verification");
-          }, 2000);
         }
       } catch (err) {
         console.error(err);
@@ -50,7 +40,7 @@ const VerifyEmail = () => {
   }, [verificationToken, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradien-to-br from-gray-900 via-gray-800 to-black text-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-900 via-gray-800 to-black text-white px-4">
       <div className="w-full max-w-md rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl p-8 text-center">
         {/* LOADING */}
         {status === "loading" && (

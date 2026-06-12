@@ -9,10 +9,6 @@ axios.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (originalRequest.url.includes("/verify/")) {
-      return Promise.reject(error);
-    }
-
     if (originalRequest.url.includes("/refresh-token")) {
       // window.location.href = "/login";
 
