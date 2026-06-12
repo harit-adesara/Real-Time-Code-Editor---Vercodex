@@ -178,6 +178,14 @@ const verifyEmail = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Token is invalid or expired");
   }
 
+  if (user.isEmailVerified) {
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, { isEmailVerified: true }, "Already verified"),
+      );
+  }
+
   user.emailVerificationToken = undefined;
   user.emailVerificationExpiry = undefined;
 
