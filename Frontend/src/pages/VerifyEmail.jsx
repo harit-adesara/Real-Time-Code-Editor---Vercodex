@@ -50,7 +50,7 @@ const VerifyEmail = () => {
   }, [verificationToken, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-900 via-gray-800 to-black text-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradien-to-br from-gray-900 via-gray-800 to-black text-white px-4">
       <div className="w-full max-w-md rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl p-8 text-center">
         {/* LOADING */}
         {status === "loading" && (
