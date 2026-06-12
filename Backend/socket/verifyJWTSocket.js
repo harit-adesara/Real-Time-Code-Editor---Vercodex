@@ -5,7 +5,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import cookie from "cookie";
 import jwt from "jsonwebtoken";
 
-const verifySocketJWT = asyncHandler(async (socket, next) => {
+const verifySocketJWT = async (socket, next) => {
   try {
     const obj = cookie.parse(socket.handshake.headers.cookie);
 
@@ -41,6 +41,6 @@ const verifySocketJWT = asyncHandler(async (socket, next) => {
 
     throw new ApiError(404, "Error in jwt verify");
   }
-});
+};
 
 export { verifySocketJWT };
