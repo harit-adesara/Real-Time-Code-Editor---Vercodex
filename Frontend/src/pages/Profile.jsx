@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../axios.js";
+import axiosInstance from "../axios.js";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -20,7 +20,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(
+        const res = await axiosInstance.get(
           "https://real-time-code-editor-vercodex.onrender.com/vercodex/me",
           {
             withCredentials: true,
@@ -49,7 +49,7 @@ const Profile = () => {
     }
 
     try {
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/change-password",
         {
           oldPassword,
@@ -79,7 +79,7 @@ const Profile = () => {
     }
 
     try {
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/oauth-set-password",
         { password: addPassword },
         { withCredentials: true },

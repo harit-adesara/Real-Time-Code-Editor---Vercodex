@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "../axios.js";
+import axios from "axios.js";
 import { useEffect, useState } from "react";
 
 const VerifyEmail = () => {

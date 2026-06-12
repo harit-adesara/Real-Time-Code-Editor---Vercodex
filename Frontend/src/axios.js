@@ -3,27 +3,13 @@ import axios from "axios";
 let isRefreshing = false;
 let queue = [];
 
-axios.interceptors.response.use(
+const axiosInstance = axios.create();
+
+axiosInstance.interceptors.response.use(
   (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
-
-    const publicRoutes = [
-      "/verify",
-      "/login",
-      "/register",
-      "/forgot-password",
-      "/reset-password",
-    ];
-
-    const isPublicRoute = publicRoutes.some((route) =>
-      originalRequest.url?.includes(route),
-    );
-
-    if (isPublicRoute) {
-      return Promise.reject(error);
-    }
 
     if (originalRequest.url.includes("/refresh-token")) {
       // window.location.href = "/login";
@@ -46,7 +32,7 @@ axios.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axios.post(
+        await axiosInstance.post(
           "https://real-time-code-editor-vercodex.onrender.com/vercodex/refresh-token",
           {},
           {
@@ -77,4 +63,4 @@ axios.interceptors.response.use(
   },
 );
 
-export default axios;
+export default axiosInstance;

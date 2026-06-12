@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../axios.js";
+import axiosInstance from "../axios.js";
 import { useNavigate } from "react-router-dom";
 
 const SearchUser = () => {
@@ -23,7 +23,7 @@ const SearchUser = () => {
 
   const fetchRooms = async () => {
     try {
-      const res = await axios.get(
+      const res = await axiosInstance.get(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/rooms",
         {
           withCredentials: true,
@@ -39,7 +39,7 @@ const SearchUser = () => {
     if (!username.trim()) return;
 
     try {
-      const res = await axios.post(
+      const res = await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/users/search",
         { username },
         { withCredentials: true },
@@ -55,7 +55,7 @@ const SearchUser = () => {
   // SEND INVITE
   const sendInvite = async () => {
     try {
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/invite",
         {
           roomId: selectedRoom,

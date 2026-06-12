@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "../axios.js";
+import axiosInstance from "../axios.js";
 import { useNavigate } from "react-router-dom";
 
 const JoinRoom = () => {
@@ -15,7 +15,7 @@ const JoinRoom = () => {
     setError("");
 
     try {
-      const res = await axios.post(
+      const res = await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/join-password",
         { roomCode, password },
         { withCredentials: true },

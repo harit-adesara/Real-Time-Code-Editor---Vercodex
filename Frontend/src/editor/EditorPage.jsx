@@ -8,7 +8,7 @@ import React, {
 import ReactMarkdown from "react-markdown";
 
 import Editor from "@monaco-editor/react";
-import axios from "../axios.js";
+import axiosInstance from "../axios.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { socket } from "../socket";
 import { AuthContext } from "../context/Auth.jsx";
@@ -548,7 +548,7 @@ const EditorPage = () => {
       if (!selectedFile || !commitMsg) return;
       setCommitLoading(true);
 
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/commit",
         {
           nodeId: selectedFile._id,
@@ -574,7 +574,7 @@ const EditorPage = () => {
       if (!selectedFile || !restoreCommitNo) return;
       setRestoreLoading(true);
 
-      const res = await axios.post(
+      const res = await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/restore-version",
         {
           nodeId: selectedFile._id,
@@ -619,7 +619,7 @@ const EditorPage = () => {
   // ================= GET TREE =================
   const getTree = async () => {
     try {
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `https://real-time-code-editor-vercodex.onrender.com/vercodex/get/room/structure/${roomId}`,
         { withCredentials: true },
       );
@@ -631,7 +631,7 @@ const EditorPage = () => {
 
   const createFileApi = async (parentId, name) => {
     try {
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/create/file",
         { roomId, parentId, name },
         { withCredentials: true },
@@ -643,7 +643,7 @@ const EditorPage = () => {
 
   const createFolderApi = async (parentId, name) => {
     try {
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/create/folder",
         { roomId, parentId, name },
         { withCredentials: true },
@@ -655,7 +655,7 @@ const EditorPage = () => {
 
   const renameNodeApi = async (nodeId, name) => {
     try {
-      await axios.patch(
+      await axiosInstance.patch(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/rename/node",
         { nodeId, name },
         { withCredentials: true },
@@ -667,7 +667,7 @@ const EditorPage = () => {
 
   const deleteNode = async (nodeId) => {
     try {
-      await axios.delete(
+      await axiosInstance.delete(
         `https://real-time-code-editor-vercodex.onrender.com/vercodex/node/delete/${nodeId}`,
         { withCredentials: true },
       );
@@ -680,7 +680,7 @@ const EditorPage = () => {
   const saveContent = async (fileId, content) => {
     if (!fileId) return;
     try {
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/save/content",
         { nodeId: fileId, content },
         { withCredentials: true },
@@ -737,7 +737,7 @@ const EditorPage = () => {
   // ================= COMMIT HISTORY =================
   const getCommitHistory = async (nodeId) => {
     try {
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `https://real-time-code-editor-vercodex.onrender.com/vercodex/commit/history?nodeId=${nodeId}`,
         { withCredentials: true },
       );
@@ -751,7 +751,7 @@ const EditorPage = () => {
   const runCode = async () => {
     try {
       if (!selectedFile) return;
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/run/code",
         {
           filename: selectedFile.name,
@@ -787,7 +787,7 @@ const EditorPage = () => {
       const code = ydocRef.current?.getText(selectedFile._id)?.toString() || "";
       const language = getLanguage(selectedFile.name);
 
-      const res = await axios.post(
+      const res = await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/code/optimize",
         { code, language },
         { withCredentials: true },
@@ -823,7 +823,7 @@ const EditorPage = () => {
     setChatLoading(true);
 
     try {
-      const res = await axios.post(
+      const res = await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/code/chatBot",
         {
           message: userMessage,

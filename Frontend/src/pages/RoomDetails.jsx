@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../axios.js";
+import axiosInstance from "../axios.js";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "../socket";
 
@@ -24,7 +24,7 @@ const RoomDetails = () => {
   // ---------------- FETCH ROOM ----------------
   const getRoomDetails = async () => {
     try {
-      const res = await axios.get(
+      const res = await axiosInstance.get(
         `https://real-time-code-editor-vercodex.onrender.com/vercodex/room/detail?roomId=${roomId}`,
         { withCredentials: true },
       );
@@ -41,7 +41,7 @@ const RoomDetails = () => {
   // ---------------- FETCH USER ----------------
   const getMe = async () => {
     try {
-      const res = await axios.get(
+      const res = await axiosInstance.get(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/me",
         {
           withCredentials: true,
@@ -63,7 +63,7 @@ const RoomDetails = () => {
   // ---------------- LEAVE ROOM ----------------
   const leaveRoom = async () => {
     try {
-      await axios.post(
+      await axiosInstance.post(
         `https://real-time-code-editor-vercodex.onrender.com/vercodex/room/leave?roomId=${roomId}`,
         {},
         { withCredentials: true },
@@ -78,7 +78,7 @@ const RoomDetails = () => {
   // ---------------- REMOVE USER ----------------
   const removeUser = async (userId) => {
     try {
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/remove-member",
         { roomId, userId },
         { withCredentials: true },

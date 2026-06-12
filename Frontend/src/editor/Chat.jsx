@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useRef, useState, useContext } from "react";
-import axios from "../axios.js";
+import axiosInstance from "../axios.js";
 import { useParams, useNavigate } from "react-router-dom";
 import { socket } from "../socket";
 import { AuthContext } from "../context/Auth.jsx";
@@ -36,7 +36,7 @@ const Chat = () => {
 
   const fetchMessages = async () => {
     try {
-      const res = await axios.get(
+      const res = await axiosInstance.get(
         `https://real-time-code-editor-vercodex.onrender.com/vercodex/get/message/${roomId}`,
         { withCredentials: true },
       );
@@ -70,7 +70,7 @@ const Chat = () => {
       setError("");
       setSending(true);
 
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/send/message",
         {
           roomId,
@@ -92,7 +92,7 @@ const Chat = () => {
     if (!editingContent.trim()) return;
     try {
       setError("");
-      await axios.patch(
+      await axiosInstance.patch(
         `https://real-time-code-editor-vercodex.onrender.com/vercodex/edit/message/${messageId}`,
         { content: editingContent.trim() },
         { withCredentials: true },
@@ -108,7 +108,7 @@ const Chat = () => {
   const deleteForEveryone = async (chatId) => {
     try {
       setError("");
-      await axios.delete(
+      await axiosInstance.delete(
         `https://real-time-code-editor-vercodex.onrender.com/vercodex/delete/everyone/${roomId}?chatId=${chatId}`,
         { withCredentials: true },
       );
@@ -121,7 +121,7 @@ const Chat = () => {
   const deleteForMe = async (chatId) => {
     try {
       setError("");
-      await axios.patch(
+      await axiosInstance.patch(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/delete/me",
         { roomId, messageIds: [chatId] },
         { withCredentials: true },

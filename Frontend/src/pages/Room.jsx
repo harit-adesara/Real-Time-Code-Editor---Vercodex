@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../axios.js";
+import axiosInstance from "../axios.js";
 import { useNavigate } from "react-router-dom";
 
 const Room = () => {
@@ -9,7 +9,7 @@ const Room = () => {
 
   const getRooms = async () => {
     try {
-      const res = await axios.get(
+      const res = await axiosInstance.get(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/rooms",
         {
           withCredentials: true,

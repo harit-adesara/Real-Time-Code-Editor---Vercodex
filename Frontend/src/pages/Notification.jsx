@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../axios.js";
+import axiosInstance from "../axios.js";
 import { socket } from "../socket";
 
 const Notifications = () => {
@@ -11,7 +11,7 @@ const Notifications = () => {
   // Get Notifications
   const getNotifications = async () => {
     try {
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/notifications",
         {
           withCredentials: true,
@@ -29,7 +29,7 @@ const Notifications = () => {
   // Delete Notification
   const deleteNotification = async (notificationId) => {
     try {
-      await axios.delete(
+      await axiosInstance.delete(
         `https://real-time-code-editor-vercodex.onrender.com/vercodex/notifications/delete/${notificationId}`,
         {
           withCredentials: true,
@@ -62,7 +62,7 @@ const Notifications = () => {
   const joinRoom = async (roomCode) => {
     console.log("Joining room with code:", roomCode); // Debug log
     try {
-      await axios.post(
+      await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/join-invite",
         { roomCode },
         {
@@ -91,7 +91,7 @@ const Notifications = () => {
     getNotifications();
 
     // Mark all notifications as read automatically
-    axios.patch(
+    axiosInstance.patch(
       "https://real-time-code-editor-vercodex.onrender.com/vercodex/notifications/mark-read",
       {},
       {
