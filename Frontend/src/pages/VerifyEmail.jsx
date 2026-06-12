@@ -16,7 +16,7 @@ const VerifyEmail = () => {
         const res = await axios.get(
           `https://real-time-code-editor-vercodex.onrender.com/vercodex/verify/${verificationToken}`,
           {
-            timeout: 20000,
+            timeout: 60000,
           },
         );
 
