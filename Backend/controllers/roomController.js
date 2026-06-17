@@ -327,17 +327,31 @@ const markNotificationsRead = asyncHandler(async (req, res) => {
 });
 
 const joinViaInvite = asyncHandler(async (req, res) => {
-  try {
-    const { roomCode } = req.body;
+  const { roomCode, notificationId } = req.body;
 
-    if (!roomCode) {
-      throw new ApiError(400, "Room code is required");
+  if (!roomCode || !notificationId) {
+    throw new ApiError(400, "Room code and notification ID are required");
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const notification =
+      await Notification.findById(notificationId).session(session);
+
+    if (!notification) {
+      throw new ApiError(404, "Notification not found");
+    }
+
+    if (notification.isProcessed || notification.isDeleted) {
+      throw new ApiError(404, "Already processed or deleted notification");
     }
 
     const room = await Room.findOne({
       roomCode,
       isDeleted: false,
-    });
+    }).session(session);
 
     if (!room) {
       throw new ApiError(404, "Invalid invite");
@@ -347,7 +361,7 @@ const joinViaInvite = asyncHandler(async (req, res) => {
       roomId: room._id,
       userId: req.user._id,
       isDeleted: false,
-    });
+    }).session(session);
 
     if (exists) {
       throw new ApiError(409, "Already joined room");
@@ -357,21 +371,32 @@ const joinViaInvite = asyncHandler(async (req, res) => {
       roomId: room._id,
       userId: req.user._id,
       isDeleted: true,
-    });
+    }).session(session);
 
     let member;
 
     if (deletedMember) {
       deletedMember.isDeleted = false;
-      member = await deletedMember.save();
+      member = await deletedMember.save({ session });
     } else {
-      member = await Members.create({
-        roomId: room._id,
-        userId: req.user._id,
-        role: "Member",
-        isDeleted: false,
-      });
+      member = await Members.create(
+        [
+          {
+            roomId: room._id,
+            userId: req.user._id,
+            role: "Member",
+            isDeleted: false,
+          },
+        ],
+        { session },
+      ).then((docs) => docs[0]);
     }
+
+    notification.isProcessed = true;
+    await notification.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
 
     const io = getIO();
 
@@ -389,25 +414,123 @@ const joinViaInvite = asyncHandler(async (req, res) => {
       roomId: room._id,
     });
 
-    return res.status(200).json(
-      new ApiResponse(
-        200,
-        {
-          room,
-          member,
-        },
-        deletedMember
-          ? "Rejoined room successfully"
-          : "Joined room successfully",
-      ),
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { room, member },
+          deletedMember
+            ? "Rejoined room successfully"
+            : "Joined room successfully",
+        ),
+      );
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
     throw new ApiError(
       error.statusCode || 500,
       error.message || "Error while joining room",
     );
   }
 });
+
+// const joinViaInvite = asyncHandler(async (req, res) => {
+//   try {
+//     const { roomCode, notificationId } = req.body;
+
+//     if (!roomCode || !notificationId) {
+//       throw new ApiError(400, "Room code and notification ID are required");
+//     }
+
+//     const notification = await Notification.findById(notificationId);
+
+//     if (!notification) {
+//       throw new ApiError(404, "Notification not found");
+//     }
+
+//     if (notification.isProcessed || notification.isDeleted) {
+//       throw new ApiError(404, "Already processed or deleted notification");
+//     }
+
+//     notification.isProcessed = true;
+//     await notification.save();
+
+//     const room = await Room.findOne({
+//       roomCode,
+//       isDeleted: false,
+//     });
+
+//     if (!room) {
+//       throw new ApiError(404, "Invalid invite");
+//     }
+
+//     const exists = await Members.findOne({
+//       roomId: room._id,
+//       userId: req.user._id,
+//       isDeleted: false,
+//     });
+
+//     if (exists) {
+//       throw new ApiError(409, "Already joined room");
+//     }
+
+//     const deletedMember = await Members.findOne({
+//       roomId: room._id,
+//       userId: req.user._id,
+//       isDeleted: true,
+//     });
+
+//     let member;
+
+//     if (deletedMember) {
+//       deletedMember.isDeleted = false;
+//       member = await deletedMember.save();
+//     } else {
+//       member = await Members.create({
+//         roomId: room._id,
+//         userId: req.user._id,
+//         role: "Member",
+//         isDeleted: false,
+//       });
+//     }
+
+//     const io = getIO();
+
+//     io.to(room._id.toString()).emit("member-joined", {
+//       userId: {
+//         username: req.user.username,
+//         _id: req.user._id,
+//       },
+//       role: member.role,
+//       username: req.user.username,
+//       roomId: room._id,
+//     });
+
+//     io.to(req.user._id.toString()).emit("join-room", {
+//       roomId: room._id,
+//     });
+
+//     return res.status(200).json(
+//       new ApiResponse(
+//         200,
+//         {
+//           room,
+//           member,
+//         },
+//         deletedMember
+//           ? "Rejoined room successfully"
+//           : "Joined room successfully",
+//       ),
+//     );
+//   } catch (error) {
+//     throw new ApiError(
+//       error.statusCode || 500,
+//       error.message || "Error while joining room",
+//     );
+//   }
+// });
 
 const softDeleteNotification = asyncHandler(async (req, res) => {
   try {
@@ -422,6 +545,7 @@ const softDeleteNotification = asyncHandler(async (req, res) => {
       {
         $set: {
           isDeleted: true,
+          isProcessed: true,
         },
       },
       {

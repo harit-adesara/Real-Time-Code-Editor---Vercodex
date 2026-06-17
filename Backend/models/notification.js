@@ -48,6 +48,11 @@ const notificationSchema = new Schema(
       type: Schema.Types.Mixed,
       default: {},
     },
+
+    isProcessed: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

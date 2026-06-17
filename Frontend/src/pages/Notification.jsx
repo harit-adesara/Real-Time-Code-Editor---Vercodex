@@ -59,15 +59,20 @@ const Notifications = () => {
   };
 
   // Join Room
-  const joinRoom = async (roomCode) => {
-    console.log("Joining room with code:", roomCode); // Debug log
+  const joinRoom = async (roomCode, notificationId) => {
     try {
       await axiosInstance.post(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/room/join-invite",
-        { roomCode },
+        { roomCode, notificationId },
         {
           withCredentials: true,
         },
+      );
+
+      setNotifications((prev) =>
+        prev.map((item) =>
+          item._id === notificationId ? { ...item, isProcessed: true } : item,
+        ),
       );
 
       setError("");
@@ -111,7 +116,6 @@ const Notifications = () => {
     const handleNewInvite = (data) => {
       setNotifications((prev) => [data, ...prev]);
     };
-    console.log("Hii");
 
     socket.on("new-invitation", handleNewInvite);
 
@@ -204,7 +208,41 @@ const Notifications = () => {
               </div>
 
               {/* Buttons */}
+              {/* Buttons */}
               <div className="flex items-center gap-3">
+                {notification.type === "ROOM_INVITE" &&
+                  !notification.isProcessed && (
+                    <button
+                      onClick={() =>
+                        joinRoom(
+                          notification.metadata?.roomCode,
+                          notification._id,
+                        )
+                      }
+                      className="px-4 py-2 rounded-xl bg-green-500 hover:bg-green-600 transition font-medium"
+                    >
+                      Join
+                    </button>
+                  )}
+
+                {notification.type === "ROOM_INVITE" &&
+                  notification.isProcessed && (
+                    <button
+                      disabled
+                      className="px-4 py-2 rounded-xl bg-gray-500/20 text-gray-500 cursor-not-allowed font-medium"
+                    >
+                      Joined
+                    </button>
+                  )}
+
+                <button
+                  onClick={() => deleteNotification(notification._id)}
+                  className="px-4 py-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition"
+                >
+                  Delete
+                </button>
+              </div>
+              {/* <div className="flex items-center gap-3">
                 {notification.type === "ROOM_INVITE" && (
                   <button
                     onClick={() => joinRoom(notification.metadata?.roomCode)}
@@ -220,7 +258,7 @@ const Notifications = () => {
                 >
                   Delete
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         ))}
