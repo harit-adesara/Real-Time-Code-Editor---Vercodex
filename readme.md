@@ -30,6 +30,7 @@ This makes it highly reliable for pair programming and live coding sessions.
 - 📧 Email notifications via Google API
 - 📂 Workspace / project-based structure
 - 💬 Chat among room members
+- 🤖 AI-based optimization, chatbot and inline suggestion
 
 ---
 
