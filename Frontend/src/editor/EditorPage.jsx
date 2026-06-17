@@ -830,7 +830,7 @@ const EditorPage = () => {
         { codeBefore, codeAfter, language },
         { withCredentials: true },
       );
-      return res.data?.data?.suggestion || "";
+      return res.data?.data?.message || "";
     } catch (err) {
       console.log("Inline suggestion failed", err);
       return "";
