@@ -1605,7 +1605,7 @@ const EditorPage = () => {
                             });
                           });
                         },
-                        freeInlineCompletions: () => {},
+                        disposeInlineCompletions: () => {},
                       },
                     );
                   }
