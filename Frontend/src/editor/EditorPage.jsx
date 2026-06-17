@@ -53,7 +53,7 @@ const EditorPage = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
 
-  const [inlineSuggestEnabled, setInlineSuggestEnabled] = useState(true);
+  const [inlineSuggestEnabled, setInlineSuggestEnabled] = useState(false);
   const inlineSuggestEnabledRef = useRef(true);
   const inlineProviderRegisteredRef = useRef(false);
 
