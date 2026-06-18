@@ -53,13 +53,13 @@ const router = createBrowserRouter(
         </Route>
       </Route>
       <Route element={<ProtectedRoute />}>
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/docs" element={<Docs />} />
         <Route path="/editor/:roomId" element={<EditorPage />} />
         <Route path="/chat/:roomId" element={<Chat />} />
       </Route>
       <Route element={<PublicRoute />}>
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/docs" element={<Docs />} />
         <Route path="/verify/:verificationToken" element={<VerifyEmail />} />
         <Route path="/resend-verification" element={<ResendVerification />} />
         <Route path="/" element={<Landing />} />
