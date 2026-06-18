@@ -8,6 +8,7 @@ import { Chat } from "../models/chat.js";
 import { Node } from "../models/node.js";
 import { getIO } from "../socket/index.js";
 import mongoose from "mongoose";
+import { redis } from "../db/redis.js";
 
 const createFile = asyncHandler(async (req, res) => {
   try {
@@ -42,6 +43,8 @@ const createFile = asyncHandler(async (req, res) => {
       type: file.type,
       parentId: file.parentId,
     });
+
+    await redis.del(`room_${roomId}`);
 
     return res.status(200).json(new ApiResponse(200, { file }, "File created"));
   } catch (error) {
@@ -87,6 +90,8 @@ const createFolder = asyncHandler(async (req, res) => {
       type: folder.type,
       parentId: folder.parentId,
     });
+
+    await redis.del(`room_${roomId}`);
 
     return res
       .status(200)
@@ -159,6 +164,8 @@ const renameNode = async (req, res) => {
       parentId: node.parentId,
     });
 
+    await redis.del(`room_${roomId}`);
+
     return res
       .status(200)
       .json(new ApiResponse(200, {}, "Renamed successsfully"));
@@ -178,9 +185,23 @@ const getTree = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Room ID is required");
     }
 
+    const cacheKey = `room_${roomId}`;
+
+    const cachedData = await redis.get(cacheKey);
+
+    if (cachedData) {
+      return res
+        .status(200)
+        .json(new ApiResponse(200, { nodes: cachedData }, "Nodes fetched"));
+    }
+
     const nodes = await Node.find({
       roomId,
       isDeleted: false,
+    });
+
+    await redis.set(cacheKey, nodes, {
+      ex: 300,
     });
 
     return res
@@ -245,6 +266,8 @@ const deleteNode = asyncHandler(async (req, res) => {
     io.to(node.roomId.toString()).emit("delete-node", {
       deletedNodeIds: deletedIds,
     });
+
+    await redis.del(`room_${roomId}`);
 
     return res
       .status(200)

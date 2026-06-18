@@ -9,6 +9,7 @@ import mongoose, { get } from "mongoose";
 import { nanoid } from "nanoid";
 import { getIO } from "../socket/index.js";
 import bcrypt from "bcryptjs";
+import { redis } from "../db/redis.js";
 
 const createCode = () => {
   return nanoid(10).toUpperCase();
@@ -52,6 +53,8 @@ const createRoom = asyncHandler(async (req, res) => {
 
       await session.commitTransaction();
       session.endSession();
+
+      await redis.del(`user_rooms_${req.user._id.toString()}`);
 
       return res
         .status(200)
@@ -148,6 +151,8 @@ const joinRoomPassword = asyncHandler(async (req, res) => {
     io.to(req.user._id.toString()).emit("join-room", {
       roomId: room._id,
     });
+
+    await redis.del(`user_rooms_${req.user._id.toString()}`);
 
     return res
       .status(200)
@@ -398,6 +403,8 @@ const joinViaInvite = asyncHandler(async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
+    await redis.del(`user_rooms_${req.user._id.toString()}`);
+
     const io = getIO();
 
     io.to(room._id.toString()).emit("member-joined", {
@@ -435,102 +442,6 @@ const joinViaInvite = asyncHandler(async (req, res) => {
     );
   }
 });
-
-// const joinViaInvite = asyncHandler(async (req, res) => {
-//   try {
-//     const { roomCode, notificationId } = req.body;
-
-//     if (!roomCode || !notificationId) {
-//       throw new ApiError(400, "Room code and notification ID are required");
-//     }
-
-//     const notification = await Notification.findById(notificationId);
-
-//     if (!notification) {
-//       throw new ApiError(404, "Notification not found");
-//     }
-
-//     if (notification.isProcessed || notification.isDeleted) {
-//       throw new ApiError(404, "Already processed or deleted notification");
-//     }
-
-//     notification.isProcessed = true;
-//     await notification.save();
-
-//     const room = await Room.findOne({
-//       roomCode,
-//       isDeleted: false,
-//     });
-
-//     if (!room) {
-//       throw new ApiError(404, "Invalid invite");
-//     }
-
-//     const exists = await Members.findOne({
-//       roomId: room._id,
-//       userId: req.user._id,
-//       isDeleted: false,
-//     });
-
-//     if (exists) {
-//       throw new ApiError(409, "Already joined room");
-//     }
-
-//     const deletedMember = await Members.findOne({
-//       roomId: room._id,
-//       userId: req.user._id,
-//       isDeleted: true,
-//     });
-
-//     let member;
-
-//     if (deletedMember) {
-//       deletedMember.isDeleted = false;
-//       member = await deletedMember.save();
-//     } else {
-//       member = await Members.create({
-//         roomId: room._id,
-//         userId: req.user._id,
-//         role: "Member",
-//         isDeleted: false,
-//       });
-//     }
-
-//     const io = getIO();
-
-//     io.to(room._id.toString()).emit("member-joined", {
-//       userId: {
-//         username: req.user.username,
-//         _id: req.user._id,
-//       },
-//       role: member.role,
-//       username: req.user.username,
-//       roomId: room._id,
-//     });
-
-//     io.to(req.user._id.toString()).emit("join-room", {
-//       roomId: room._id,
-//     });
-
-//     return res.status(200).json(
-//       new ApiResponse(
-//         200,
-//         {
-//           room,
-//           member,
-//         },
-//         deletedMember
-//           ? "Rejoined room successfully"
-//           : "Joined room successfully",
-//       ),
-//     );
-//   } catch (error) {
-//     throw new ApiError(
-//       error.statusCode || 500,
-//       error.message || "Error while joining room",
-//     );
-//   }
-// });
 
 const softDeleteNotification = asyncHandler(async (req, res) => {
   try {
@@ -654,6 +565,8 @@ const removeMember = asyncHandler(async (req, res) => {
         createdAt: notification[0].createdAt,
       });
 
+      await redis.del(`user_rooms_${userId.toString()}`);
+
       // io.to(userId.toString()).emit("kicked-out", {
       //   roomId,
       // });
@@ -685,12 +598,32 @@ const getTotalRoom = asyncHandler(async (req, res) => {
       throw new ApiError(404, "User ID is required");
     }
 
+    const cachceKey = `user_rooms_${userId.toString()}`;
+
+    const cachedData = await redis.get(cachceKey);
+
+    if (cachedData) {
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            { rooms: cachedData },
+            "Rooms fetched successfully",
+          ),
+        );
+    }
+
     const rooms = await Members.find({
       userId: userId,
       isDeleted: false,
     })
       .populate("roomId", "name roomCode")
       .sort({ joinedAt: -1 });
+
+    await redis.set(cachceKey, rooms, {
+      ex: 300,
+    });
 
     return res
       .status(200)
@@ -756,6 +689,13 @@ const leaveRoom = asyncHandler(async (req, res) => {
         roomDetail.isDeleted = true;
         await roomDetail.save({ session });
 
+        const members = await Members.find({
+          roomId,
+          isDeleted: false,
+        })
+          .select("userId")
+          .session(session);
+
         await Members.updateMany(
           {
             roomId: roomId,
@@ -769,6 +709,10 @@ const leaveRoom = asyncHandler(async (req, res) => {
 
         await session.commitTransaction();
         session.endSession();
+
+        await Promise.all(
+          members.map((member) => redis.del(`user_rooms_${member.userId}`)),
+        );
 
         io.to(roomId.toString()).emit("room-deleted", {
           roomId,
@@ -798,6 +742,8 @@ const leaveRoom = asyncHandler(async (req, res) => {
 
       await session.commitTransaction();
       session.endSession();
+
+      await redis.del(`user_rooms_${userId.toString()}`);
 
       io.to(roomId.toString()).emit("member-left", {
         userId: req.user._id,
@@ -867,8 +813,6 @@ const getTotalUserInRoom = asyncHandler(async (req, res) => {
     );
   }
 });
-
-// restore
 
 export {
   createRoom,
