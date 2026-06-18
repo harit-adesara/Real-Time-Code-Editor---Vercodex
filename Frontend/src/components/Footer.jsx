@@ -1,8 +1,10 @@
 // Footer.jsx
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
+  const navigate = useNavigate();
   return (
     <footer className="w-full border-t border-white/10 bg-[rgb(15,23,42)] px-4 md:px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
       {/* Left */}
@@ -16,11 +18,26 @@ const Footer = () => {
 
       {/* Center */}
       <div className="flex items-center gap-6 text-sm text-gray-400">
-        <button className="hover:text-blue-400 transition">Privacy</button>
+        <button
+          className="hover:text-blue-400 transition"
+          onClick={() => navigate("/privacy")}
+        >
+          Privacy
+        </button>
 
-        <button className="hover:text-blue-400 transition">Terms</button>
+        <button
+          className="hover:text-blue-400 transition"
+          onClick={() => navigate("/terms")}
+        >
+          Terms
+        </button>
 
-        <button className="hover:text-blue-400 transition">Docs</button>
+        <button
+          className="hover:text-blue-400 transition"
+          onClick={() => navigate("/docs")}
+        >
+          Docs
+        </button>
       </div>
 
       {/* Right */}

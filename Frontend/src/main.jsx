@@ -33,6 +33,9 @@ import PublicRoute from "./ProtectedRoutes/PublicRoutes.jsx";
 import ResetPassword from "./pages/ResetForgetPassword.jsx";
 import VerifyEmail from "./pages/VerifyEmail.jsx";
 import ResendVerification from "./pages/ResendEmail.jsx";
+import Privacy from "./docs/Privacy.jsx";
+import Terms from "./docs/Terms.jsx";
+import Docs from "./docs/Documentation.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -54,6 +57,9 @@ const router = createBrowserRouter(
         <Route path="/chat/:roomId" element={<Chat />} />
       </Route>
       <Route element={<PublicRoute />}>
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/docs" element={<Docs />} />
         <Route path="/verify/:verificationToken" element={<VerifyEmail />} />
         <Route path="/resend-verification" element={<ResendVerification />} />
         <Route path="/" element={<Landing />} />
