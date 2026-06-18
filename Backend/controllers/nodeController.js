@@ -132,12 +132,12 @@ const updateContent = asyncHandler(async (req, res) => {
 
 const renameNode = async (req, res) => {
   try {
-    const { nodeId, name } = req.body;
+    const { nodeId, name, roomId } = req.body;
 
     const node = await Node.findById(nodeId);
 
-    if (!node) {
-      throw new ApiError(404, "Node not found");
+    if (!node || !roomId) {
+      throw new ApiError(404, "Node or Room not found");
     }
 
     const duplicate = await Node.findOne({
@@ -217,11 +217,11 @@ const getTree = asyncHandler(async (req, res) => {
 
 const deleteNode = asyncHandler(async (req, res) => {
   try {
-    const { nodeId } = req.params;
+    const { nodeId, roomId } = req.params;
 
     const node = await Node.findById(nodeId);
 
-    if (!node) {
+    if (!node || !roomId) {
       throw new ApiError(404, "File or Folder not found");
     }
 

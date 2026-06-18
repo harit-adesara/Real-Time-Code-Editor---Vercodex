@@ -676,7 +676,7 @@ const EditorPage = () => {
     try {
       await axiosInstance.patch(
         "https://real-time-code-editor-vercodex.onrender.com/vercodex/rename/node",
-        { nodeId, name },
+        { nodeId, name, roomId },
         { withCredentials: true },
       );
     } catch (error) {
@@ -687,7 +687,7 @@ const EditorPage = () => {
   const deleteNode = async (nodeId) => {
     try {
       await axiosInstance.delete(
-        `https://real-time-code-editor-vercodex.onrender.com/vercodex/node/delete/${nodeId}`,
+        `https://real-time-code-editor-vercodex.onrender.com/vercodex/node/delete/${nodeId}/${roomId}`,
         { withCredentials: true },
       );
     } catch (error) {

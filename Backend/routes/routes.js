@@ -202,7 +202,7 @@ router
 
 router.route("/get/room/structure/:roomId").get(verifyJWT, getTree); // done
 
-router.route("/node/delete/:nodeId").delete(verifyJWT, deleteNode); // done
+router.route("/node/delete/:nodeId/:roomId").delete(verifyJWT, deleteNode); // done
 
 // execution routes
 
