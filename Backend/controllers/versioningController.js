@@ -128,12 +128,19 @@ const commitFile = asyncHandler(async (req, res) => {
       throw new ApiError(404, "Please give required fields");
     }
 
-    const job = await versionQueue.add("commit", {
-      nodeId,
-      userId: req.user._id,
-      content,
-      msg,
-    });
+    const job = await versionQueue.add(
+      "commit",
+      {
+        nodeId,
+        userId: req.user._id,
+        content,
+        msg,
+      },
+      {
+        removeOnComplete: true,
+        removeOnFail: 100,
+      },
+    );
 
     const result = await job.waitUntilFinished(versionQueueEvents);
 
@@ -151,10 +158,17 @@ const restoreFile = asyncHandler(async (req, res) => {
       throw new ApiError(404, "File ID is required");
     }
 
-    const job = await versionQueue.add("restore", {
-      nodeId,
-      commitNumber: Number(commitNumber),
-    });
+    const job = await versionQueue.add(
+      "restore",
+      {
+        nodeId,
+        commitNumber: Number(commitNumber),
+      },
+      {
+        removeOnComplete: true,
+        removeOnFail: 100,
+      },
+    );
 
     const result = await job.waitUntilFinished(versionQueueEvents);
 
