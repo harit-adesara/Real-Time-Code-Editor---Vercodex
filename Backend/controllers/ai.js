@@ -1,57 +1,78 @@
-import Groq from "groq-sdk";
+import { GoogleGenAI } from "@google/genai";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
-const MODEL = "llama-3.3-70b-versatile";
+const MODEL = "gemini-3.1-flash-lite";
 
-const stripJsonFences = (text) => {
-  return text
-    .trim()
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/\s*```$/, "")
-    .trim();
+const generate = async (
+  prompt,
+  { temperature = 0.5, maxOutputTokens, responseSchema } = {},
+) => {
+  const response = await ai.models.generateContent({
+    model: MODEL,
+    contents: prompt,
+    config: {
+      temperature,
+      ...(maxOutputTokens ? { maxOutputTokens } : {}),
+      ...(responseSchema
+        ? { responseMimeType: "application/json", responseSchema }
+        : {}),
+    },
+  });
+
+  return response.text || "";
+};
+
+const optimizationSchema = {
+  type: "object",
+  properties: {
+    currentCodeEfficiencyInPercentage: { type: "number" },
+    timeComplexity: { type: "string" },
+    spaceComplexity: { type: "string" },
+    issues: { type: "array", items: { type: "string" } },
+    suggestions: { type: "array", items: { type: "string" } },
+    optimizedCode: { type: "string" },
+  },
+  required: [
+    "currentCodeEfficiencyInPercentage",
+    "timeComplexity",
+    "spaceComplexity",
+    "issues",
+    "suggestions",
+    "optimizedCode",
+  ],
+  propertyOrdering: [
+    "currentCodeEfficiencyInPercentage",
+    "timeComplexity",
+    "spaceComplexity",
+    "issues",
+    "suggestions",
+    "optimizedCode",
+  ],
 };
 
 export const optimizeCode = async (code, language) => {
   const prompt = `
 You are a senior software engineer.
 
-Analyze this ${language} code.
+Analyze this ${language} code and produce an optimization report.
 
-Return ONLY valid JSON with NO markdown fences, NO extra text, NO explanation.
-
-{
-  "currentCodeEfficiencyInPercentage": <number 0-100>,
-  "timeComplexity": "<string>",
-  "spaceComplexity": "<string>",
-  "issues": ["<string>", ...],
-  "suggestions": ["<string>", ...],
-  "optimizedCode": "<string>"
-}
-
-Instructions: Give issues , suggesations and optimization if possible do not give any fake data
+Instructions: Give issues, suggestions and optimization if possible. Do not give any fake data. currentCodeEfficiencyInPercentage must be a number between 0 and 100.
 
 Code:
 ${code}
 `;
 
-  const completion = await groq.chat.completions.create({
-    model: MODEL,
-    messages: [
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
+  const text = await generate(prompt, {
     temperature: 0.2,
+    responseSchema: optimizationSchema,
   });
-
-  return completion.choices[0]?.message?.content || "{}";
+  return text || "{}";
 };
 
 export const checkOptimization = asyncHandler(async (req, res) => {
@@ -64,9 +85,7 @@ export const checkOptimization = asyncHandler(async (req, res) => {
   try {
     const raw = await optimizeCode(code, language);
 
-    const clean = stripJsonFences(raw);
-
-    const parsedResult = JSON.parse(clean);
+    const parsedResult = JSON.parse(raw);
 
     return res
       .status(200)
@@ -118,21 +137,12 @@ ${historyText}
 `;
 
   try {
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+    const text = await generate(prompt, {
       temperature: 0.7,
-      max_tokens: 2048,
+      maxOutputTokens: 2048,
     });
 
-    const response =
-      completion.choices?.[0]?.message?.content ||
-      "Sorry, I couldn't generate a response.";
+    const response = text || "Sorry, I couldn't generate a response.";
 
     return res
       .status(200)
@@ -179,21 +189,12 @@ Do NOT repeat any text already present in codeAfter.
 
   `;
 
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        },
-      ],
+    const raw = await generate(prompt, {
       temperature: 0.2,
-      max_tokens: 140,
+      maxOutputTokens: 140,
     });
 
-    const suggestion = completion.choices?.[0]?.message?.content || "";
-
-    const response = suggestion
+    const response = raw
       .replace(/^```[\w]*\n?/, "")
       .replace(/```$/, "")
       .trim();
